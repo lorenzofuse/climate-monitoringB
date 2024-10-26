@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane styleClass="login-pane" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.climatemonitoring.controller.LoginController">
+    <center>
+        <VBox alignment="CENTER" spacing="15" maxWidth="400">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Text styleClass="title-text" text="Climate Monitoring System"/>
+
+            <VBox styleClass="login-form" spacing="10">
+                <TextField fx:id="userIdField" promptText="User ID"/>
+                <PasswordField fx:id="passwordField" promptText="Password"/>
+
+                <HBox spacing="10" alignment="CENTER_RIGHT">
+                    <Button fx:id="loginButton" text="Login" styleClass="primary-button"/>
+                    <Button fx:id="registerButton" text="Registrati" styleClass="secondary-button"/>
+                </HBox>
+            </VBox>
+
+            <Separator/>
+
+            <VBox alignment="CENTER" spacing="10">
+                <Text text="Oppure continua come ospite"/>
+                <Button fx:id="guestButton" text="Accesso Ospite" styleClass="guest-button"/>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

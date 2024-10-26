@@ -1,0 +1,75 @@
+
+.root {
+    -fx-background-color: #ffffff;
+    -fx-font-family: 'Arial', sans-serif;
+}
+
+
+.title-text {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-fill: #333333;
+}
+
+
+.button {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-padding: 8 15;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #3a80d2;
+}
+
+
+.text-field, .text-area {
+    -fx-background-color: #f5f5f5;
+    -fx-border-color: #dddddd;
+    -fx-border-radius: 3;
+    -fx-text-fill: black;
+}
+
+/* Pannelli */
+.login-pane, .content-pane, .climate-data-grid {
+    -fx-background-color: #ffffff;
+    -fx-padding: 15;
+    -fx-border-color: #dddddd;
+    -fx-border-radius: 3;
+}
+
+/* Header */
+.header {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: white;
+    -fx-padding: 10;
+}
+
+/* Tab Pane */
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: #f5f5f5;
+}
+
+.tab {
+    -fx-background-color: #e0e0e0;
+    -fx-padding: 5 10;
+}
+
+.tab:selected {
+    -fx-background-color: #4a90e2;
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: white;
+}
+
+/* dati climatici */
+.climate-data-grid .label {
+    -fx-font-weight: normal;
+}
+
+.climate-data-grid .spinner,
+.climate-data-grid .text-area {
+    -fx-pref-width: 200px;
+}

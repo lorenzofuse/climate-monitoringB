@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.climatemonitoring.controller.MainController">
+    <top>
+        <HBox styleClass="header" alignment="CENTER_LEFT" spacing="10">
+            <padding>
+                <Insets top="10" right="20" bottom="10" left="20"/>
+            </padding>
+            <Label styleClass="title-text" text="Climate Monitoring System"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="logoutButton" text="Logout" styleClass="secondary-button"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TabPane>
+            <Tab text="Cerca per Denominazione" closable="false">
+                <VBox spacing="15" styleClass="content-pane">
+                    <HBox spacing="10" alignment="CENTER">
+                        <TextField fx:id="searchField" promptText="Nome città" HBox.hgrow="ALWAYS"/>
+                        <TextField fx:id="stateField" promptText="Stato" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="searchButton" text="Cerca" styleClass="primary-button"/>
+                    </HBox>
+                    <TextArea fx:id="resultArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true"/>
+                </VBox>
+            </Tab>
+
+            <Tab text="Cerca per Paese" closable="false">
+                <VBox spacing="15" styleClass="content-pane">
+                    <HBox spacing="10" alignment="CENTER">
+                        <TextField fx:id="paeseField" promptText="Nome paese" HBox.hgrow="ALWAYS"/>
+                        <Button onAction="#handleSearchByCountry" text="Cerca" styleClass="primary-button"/>
+                    </HBox>
+                    <TextArea fx:id="paeseResultArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true"/>
+                </VBox>
+            </Tab>
+
+            <Tab text="Cerca per Coordinate" closable="false">
+                <VBox spacing="15" styleClass="content-pane">
+                    <HBox spacing="10" alignment="CENTER">
+                        <TextField fx:id="latitudeField" promptText="Latitudine" HBox.hgrow="ALWAYS"/>
+                        <TextField fx:id="longitudeField" promptText="Longitudine" HBox.hgrow="ALWAYS"/>
+                        <Button onAction="#handleSearchByCoordinates" text="Cerca" styleClass="primary-button"/>
+                    </HBox>
+                    <TextArea fx:id="coordinateResultArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true"/>
+                </VBox>
+            </Tab>
+
+            <Tab text="Visualizza Dati Climatici" closable="false">
+                <VBox spacing="15" styleClass="content-pane">
+                    <HBox spacing="10" alignment="CENTER">
+                        <TextField fx:id="areaNameField" promptText="Nome area" HBox.hgrow="ALWAYS"/>
+                        <TextField fx:id="areaStateField" promptText="Stato" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="viewClimateDataButton" text="Visualizza" onAction="#handleViewClimateData" styleClass="primary-button"/>
+                    </HBox>
+                    <TextArea fx:id="climateDataResultArea" VBox.vgrow="ALWAYS" editable="false" wrapText="true"/>
+                </VBox>
+            </Tab>
+
+
+            <Tab fx:id="operatorTab" text="Operatore" closable="false">
+                <VBox spacing="15" styleClass="content-pane">
+                    <Button text="Crea Centro di Monitoraggio"
+                            onAction="#handleCreateMonitoringCenter"
+                            styleClass="primary-button"/>
+                    <Button text="Crea Area di Interesse"
+                            onAction="#handleCreateArea"
+                            styleClass="primary-button"/>
+                    <Button text="Inserisci Dati Climatici"
+                            onAction="#handlInsertClimateData"
+                            styleClass="primary-button"/>
+                    <TextArea fx:id="operatorResultArea"
+                              VBox.vgrow="ALWAYS"
+                              editable="false"
+                              wrapText="true"/>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>
