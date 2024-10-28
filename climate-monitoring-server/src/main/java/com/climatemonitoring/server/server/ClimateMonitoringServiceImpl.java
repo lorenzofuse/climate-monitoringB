@@ -1,9 +1,9 @@
-package com.climatemonitoring.server;
+package com.climatemonitoring.server.server;
 
-import com.climatemonitoring.model.OperatoriRegistrati;
-import com.climatemonitoring.service.ClimateMonitoringService;
-import com.climatemonitoring.model.CoordinateMonitoraggio;
-import com.climatemonitoring.util.DatabaseManager;
+import com.climatemonitoring.common.model.OperatoriRegistrati;
+import com.climatemonitoring.common.service.ClimateMonitoringService;
+import com.climatemonitoring.common.model.CoordinateMonitoraggio;
+import com.climatemonitoring.server.util.DatabaseManager;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;

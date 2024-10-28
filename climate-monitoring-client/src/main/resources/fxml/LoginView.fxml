@@ -7,7 +7,7 @@
 
 <BorderPane styleClass="login-pane" xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.climatemonitoring.controller.LoginController">
+            fx:controller="com.climatemonitoring.client.controller.LoginController">
     <center>
         <VBox alignment="CENTER" spacing="15" maxWidth="400">
             <padding>

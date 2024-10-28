@@ -1,4 +1,4 @@
-module com.climatemonitoring {
+module com.climatemonitoring.client {
     // JavaFX modules required
     requires javafx.controls;
     requires javafx.fxml;
@@ -7,16 +7,14 @@ module com.climatemonitoring {
     requires java.rmi;
     requires java.sql;
 
-    // Add require to common module
+    // Dependency on the common module
     requires com.climatemonitoring.common;
 
-    // Export the main package and controllers for JavaFX
-    exports com.climatemonitoring;
-    exports com.climatemonitoring.controller;
+    // Export client packages
+    exports com.climatemonitoring.client;
+    exports com.climatemonitoring.client.controller;
 
     // Open packages to JavaFX for FXML loading
-    opens com.climatemonitoring to javafx.fxml;
-    opens com.climatemonitoring.controller to javafx.fxml;
-
-    // Export model package if needed by other modules
+    opens com.climatemonitoring.client to javafx.fxml;
+    opens com.climatemonitoring.client.controller to javafx.fxml;
 }

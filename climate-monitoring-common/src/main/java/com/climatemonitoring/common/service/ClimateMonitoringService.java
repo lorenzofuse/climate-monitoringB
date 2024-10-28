@@ -1,7 +1,7 @@
-package com.climatemonitoring.service;
+package com.climatemonitoring.common.service;
 
-import com.climatemonitoring.model.CoordinateMonitoraggio;
-import com.climatemonitoring.model.OperatoriRegistrati;
+import com.climatemonitoring.common.model.CoordinateMonitoraggio;
+import com.climatemonitoring.common.model.OperatoriRegistrati;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

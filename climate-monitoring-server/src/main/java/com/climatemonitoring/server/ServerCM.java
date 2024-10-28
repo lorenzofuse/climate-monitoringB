@@ -1,7 +1,8 @@
-package com.climatemonitoring;
+package com.climatemonitoring.server;
 
-import com.climatemonitoring.server.ClimateMonitoringServiceImpl;
-import com.climatemonitoring.util.DatabaseManager;
+import com.climatemonitoring.server.server.ClimateMonitoringServiceImpl;
+import com.climatemonitoring.server.util.DatabaseManager;
+
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.util.Scanner;

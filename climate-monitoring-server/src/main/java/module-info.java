@@ -3,5 +3,6 @@ module com.climatemonitoring.server {
     requires java.sql;
     requires com.climatemonitoring.common;
 
-    exports com.climatemonitoring.server;
+    // Export server packages
+    exports com.climatemonitoring.server.server;
 }

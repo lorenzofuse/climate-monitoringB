@@ -1,14 +1,19 @@
-package com.climatemonitoring.controller;
+package com.climatemonitoring.client.controller;
 
-import com.climatemonitoring.ClientCM;
-import com.climatemonitoring.model.OperatoriRegistrati;
-import com.climatemonitoring.service.ClimateMonitoringService;
+import com.climatemonitoring.client.ClientCM;
+import com.climatemonitoring.common.model.OperatoriRegistrati;
+import com.climatemonitoring.common.service.ClimateMonitoringService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 public class LoginController {
     @FXML public Button registerButton;
@@ -18,15 +23,25 @@ public class LoginController {
     @FXML private Button guestButton;
 
     private ClientCM mainApp;
-    private final ClimateMonitoringService service;
+    private  ClimateMonitoringService service;
 
-    public LoginController(ClimateMonitoringService service) {
+    public LoginController(){
+    }
+
+    public void setService(ClimateMonitoringService service) {
+        if (service == null) {
+            throw new IllegalArgumentException("ClimateMonitoringService cannot be null");
+        }
         this.service = service;
     }
 
     public void setMainApp(ClientCM mainApp) {
+        if (mainApp == null) {
+            throw new IllegalArgumentException("MainApp cannot be null");
+        }
         this.mainApp = mainApp;
     }
+
 
     @FXML
     private void initialize() {
@@ -37,6 +52,21 @@ public class LoginController {
 
     @FXML
     private void handleLogin() {
+
+        if (service == null) {
+            showAlert(Alert.AlertType.ERROR, "Errore di Sistema",
+                    "Servizio non inizializzato",
+                    "Si è verificato un errore di inizializzazione del servizio.");
+            return;
+        }
+
+        if (mainApp == null) {
+            showAlert(Alert.AlertType.ERROR, "Errore di Sistema",
+                    "Applicazione non inizializzata",
+                    "Si è verificato un errore di inizializzazione dell'applicazione.");
+            return;
+        }
+
         String userId = userIdField.getText().trim();
         String password = passwordField.getText().trim();
 

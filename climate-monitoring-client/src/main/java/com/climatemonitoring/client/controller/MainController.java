@@ -1,12 +1,10 @@
-package com.climatemonitoring.controller;
+package com.climatemonitoring.client.controller;
 
 
-import com.climatemonitoring.ClientCM;
-import com.climatemonitoring.model.CoordinateMonitoraggio;
-import com.climatemonitoring.service.ClimateMonitoringService;
-import com.climatemonitoring.model.OperatoriRegistrati;
-import com.climatemonitoring.service.ClimateMonitoringService;
-import javafx.application.Preloader;
+import com.climatemonitoring.client.ClientCM;
+import com.climatemonitoring.common.model.CoordinateMonitoraggio;
+import com.climatemonitoring.common.service.ClimateMonitoringService;
+import com.climatemonitoring.common.model.OperatoriRegistrati;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -40,8 +38,13 @@ public class MainController {
 
     private OperatoriRegistrati currentUser;
     private ClientCM mainApp;
+    private ClimateMonitoringService service;
 
-    public MainController(ClimateMonitoringService service) {
+    public MainController() {
+    }
+
+    public void setService(ClimateMonitoringService service) {
+        this.service = service;
     }
 
     public void setMainApp(ClientCM mainApp) {
@@ -82,7 +85,7 @@ public class MainController {
         }
 
         try {
-            List<CoordinateMonitoraggio> results = ClientCM.getService().cercaAreaGeograficaNome(cityName, stateName);
+            List<CoordinateMonitoraggio> results =service.cercaAreaGeograficaNome(cityName, stateName);
 
             if (results.isEmpty()) {
                 resultArea.setText("Nessun risultato trovato.");
@@ -128,8 +131,7 @@ public class MainController {
                 return;
             }
 
-            List<CoordinateMonitoraggio> results =
-                    ClientCM.getService().cercaAreaGeograficaCoordinate(latitudine, longitudine);
+            List<CoordinateMonitoraggio> results = service.cercaAreaGeograficaCoordinate(latitudine, longitudine);
 
             displayCoordinateResults(results, latitudine, longitudine);
         } catch (NumberFormatException e) {
@@ -205,7 +207,7 @@ public class MainController {
         }
 
         try{
-            List<CoordinateMonitoraggio> ris = ClientCM.getService().cercaAreaGeograficaPerPaese(paese);
+            List<CoordinateMonitoraggio> ris = service.cercaAreaGeograficaPerPaese(paese);
             if (ris.isEmpty()) {
                 paeseResultArea.setText("Nessun risultato trovato.");
             } else {
@@ -236,7 +238,7 @@ public class MainController {
             return;
         }
         try {
-            String ris = ClientCM.getService().visualizzaAreaGeografica(nome, stato);
+            String ris = service.visualizzaAreaGeografica(nome, stato);
 
             if (ris.equals("Area non trovata.")) {
                 climateDataResultArea.setText("Nessuna area geografica trovata con i parametri specificati");
@@ -296,7 +298,7 @@ public class MainController {
                     return null;
                 }
                 try {
-                    boolean success = ClientCM.getService().creaCentroMonitoraggio(
+                    boolean success = service.creaCentroMonitoraggio(
                             currentUser.getId(),
                             nomeField.getText().trim(),
                             indirizzoField.getText().trim(),
@@ -367,7 +369,7 @@ public class MainController {
                     double latitudine = Double.parseDouble(latitudineField.getText().trim());
                     double longitudine = Double.parseDouble(longitudineField.getText().trim());
 
-                    boolean success = ClientCM.getService().creaAreaInteresse(
+                    boolean success =service.creaAreaInteresse(
                             currentUser.getId(),
                             cittaField.getText().trim(),
                             statoField.getText().trim(),
@@ -405,7 +407,7 @@ public class MainController {
     private void updateAreaComboBox() {
         if (areaComboBox != null && currentUser != null) {
             try {
-                List<CoordinateMonitoraggio> aree = ClientCM.getService().getAreePerCentroMonitoraggio(currentUser.getId());
+                List<CoordinateMonitoraggio> aree = service.getAreePerCentroMonitoraggio(currentUser.getId());
                 areaComboBox.getItems().clear();
                 areaComboBox.getItems().addAll(aree);
             } catch (RemoteException e) {
@@ -473,7 +475,7 @@ public class MainController {
 
         // Popola il ComboBox con le aree disponibili
         try {
-            List<CoordinateMonitoraggio> aree = ClientCM.getService().getAreePerCentroMonitoraggio(currentUser.getId());
+            List<CoordinateMonitoraggio> aree = service.getAreePerCentroMonitoraggio(currentUser.getId());
             areaComboBox.getItems().addAll(aree);
         } catch (RemoteException e) {
             showAlert(Alert.AlertType.ERROR, "Errore di caricamento",
@@ -502,7 +504,7 @@ public class MainController {
 
 
                 try {
-                    boolean success = ClientCM.getService().inserisciParametriClimatici(
+                    boolean success = service.inserisciParametriClimatici(
                             currentUser.getId(),
                             null,
                             selectedArea.getId(),

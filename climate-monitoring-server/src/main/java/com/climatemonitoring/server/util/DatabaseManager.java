@@ -1,4 +1,4 @@
-package com.climatemonitoring.util;
+package com.climatemonitoring.server.util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
