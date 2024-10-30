@@ -3,6 +3,7 @@ package com.climatemonitoring.server.server;
 import com.climatemonitoring.common.model.OperatoriRegistrati;
 import com.climatemonitoring.common.service.ClimateMonitoringService;
 import com.climatemonitoring.common.model.CoordinateMonitoraggio;
+import com.climatemonitoring.common.exception.DuplicateCenterException;
 import com.climatemonitoring.server.util.DatabaseManager;
 
 import java.rmi.RemoteException;
@@ -264,7 +265,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
                 if (numRilevazioni > 0) {
                     result.append("\n");
-                    result.append("Riepilogo generale dei dati climatici:\n");
+                    result.append("===Riepilogo generale dei dati climatici===\n");
                     result.append("\n");
                     result.append("Numero totale di rilevazioni: ").append(numRilevazioni).append("\n");
                     result.append("\n");
@@ -277,7 +278,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                     result.append("  Altitudine: ").append(String.format("%.2f", rs.getDouble("avg_altitudine"))).append(" m\n");
                     result.append("  Massa ghiacciai: ").append(String.format("%.2f", rs.getDouble("avg_massa_ghiacciai"))).append(" kg/m³\n\n");
 
-                    result.append("Dettaglio rilevazioni per operatore:\n\n");
+                    result.append("===Dettaglio rilevazioni per operatore===\n\n");
                     try {
                         PreparedStatement pstmtOp = conn.prepareStatement(sqlOp);
                         pstmtOp.setInt(1, coordinateMonitoraggioId);
@@ -285,7 +286,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                         ResultSet rsDet = pstmtOp.executeQuery();
                         while (rsDet.next()) {
                             result.append("Operatore: ").append(rsDet.getString("nome_operatore")).append(" ").append(rsDet.getString("cognome_operatore")).append("\n");
-                            result.append("Data rilevazione: ").append(new SimpleDateFormat("dd/MM/yyyy HH:mm").format(rsDet.getTimestamp("data_rilevazione"))).append("\n");
+                            result.append("Data rilevazione: ").append(new SimpleDateFormat("dd/MM/yyyy").format(rsDet.getTimestamp("data_rilevazione"))).append("\n");
                             result.append("Parametri rilevati:\n");
                             result.append("  Vento: ").append(String.format("%.2f", rsDet.getDouble("vento"))).append(" m/s\n");
                             result.append("  Umidità: ").append(String.format("%.2f", rsDet.getDouble("umidita"))).append("%\n");
@@ -324,7 +325,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             pstmt.setInt(1, coordinateMonitoraggioId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                result.append("\nCommenti recenti degli operatori:\n");
+                result.append("===Commenti recenti degli operatori===\n");
                 boolean hasComments = false;
                 while (rs.next()) {
                     result.append("- ").append(rs.getString("note")).append("\n");
@@ -395,15 +396,17 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             pstmt.setString(4, email);
             pstmt.setString(5, userId);
             pstmt.setString(6, password);
+            pstmt.setInt(7, centromonitoraggioid); // Aggiunge il parametro mancante
 
             int rowsAffected = pstmt.executeUpdate();
 
-            return rowsAffected > 0;  //true se l'inserimento è andato a buon fine
+            return rowsAffected > 0; // true se l'inserimento è andato a buon fine
 
         } catch (SQLException e) {
             throw new RemoteException("Errore durante la registrazione", e);
         }
     }
+
 
     //metodo per incrementare gli id, il primo operatore che si registra è l'1, il secondo il 2 ecc
     private int getNextCentroMonitoraggio(Connection conn) throws SQLException {
@@ -489,10 +492,9 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             verificaStmt.setInt(1, operatoreId);
             ResultSet rs = verificaStmt.executeQuery();
 
-            if (rs.next()) {
-                // Se l'operatore ha già un centro, restituisci un errore
-                System.out.println("L'operatore con ID " + operatoreId + " ha già un centro di monitoraggio.");
-                return false;
+            if (rs.next() && rs.getInt(1)>0) {
+                throw new DuplicateCenterException("L'utente ha già registrato un centro di monitoraggio");
+
             }
 
             // Se l'operatore non ha un centro, procedi con la creazione
@@ -516,7 +518,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                 return false;
             }
 
-        } catch (SQLException e) {
+        } catch (SQLException | DuplicateCenterException e) {
             System.err.println("Errore SQL durante la creazione del centro: " + e.getMessage());
             throw new RemoteException("Errore durante la creazione del centro di monitoraggio", e);
         }

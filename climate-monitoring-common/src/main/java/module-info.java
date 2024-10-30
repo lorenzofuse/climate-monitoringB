@@ -5,4 +5,5 @@ module com.climatemonitoring.common {
     // Export common packages
     exports com.climatemonitoring.common.model;
     exports com.climatemonitoring.common.service;
+    exports com.climatemonitoring.common.exception;
 }
