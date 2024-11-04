@@ -730,5 +730,29 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         return null;
     }
 
+    @Override
+    public List<String> getAreeInteresseOperatore(int operatoreId) throws RemoteException {
+        String sql = "SELECT nome FROM areeinteresse WHERE operatore_id = ?";
+        List<String> areeInteresse = new ArrayList<>();
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, operatoreId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    areeInteresse.add(rs.getString("nome"));
+                }
+            }
+
+            return areeInteresse;
+
+        } catch (SQLException e) {
+            System.err.println("Errore nel recupero delle aree di interesse: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Errore nel recupero delle aree di interesse", e);
+        }
+    }
 
 }
