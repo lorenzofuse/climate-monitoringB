@@ -5,15 +5,10 @@ import com.climatemonitoring.common.model.OperatoriRegistrati;
 import com.climatemonitoring.common.service.ClimateMonitoringService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
-import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
 import java.sql.SQLException;
-import java.time.LocalDate;
 
 public class LoginController {
     @FXML public Button registerButton;

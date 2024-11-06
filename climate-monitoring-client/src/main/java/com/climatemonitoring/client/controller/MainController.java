@@ -33,7 +33,6 @@ public class MainController {
     @FXML private ComboBox<CoordinateMonitoraggio> areaComboBox;
     @FXML private TextField areaNameField;
     @FXML private TextField areaStateField;
-    @FXML private Button viewClimateDataButton;
     @FXML private TextArea climateDataResultArea;
 
     private OperatoriRegistrati currentUser;
@@ -419,7 +418,7 @@ public class MainController {
 
 
     @FXML
-    private void handlInsertClimateData() {
+    private void handleInsertClimateData() {
         if (currentUser == null) {
             showAlert(Alert.AlertType.ERROR, "Errore", "Accesso negato", "Effettua il login come operatore");
             return;
@@ -552,6 +551,117 @@ public class MainController {
         if (altitudine < 0 || altitudine > 8000) return false;
         if (massaGhiacciai < 0 || massaGhiacciai > 1000000) return false;
         return true;
+    }
+
+    @FXML
+    private void handleInsertClimateDataByArea() {
+        if (currentUser == null) {
+            showAlert(Alert.AlertType.ERROR, "Errore", "Accesso negato", "Effettua il login come operatore");
+            return;
+        }
+
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Inserisci Dati Climatici per Area");
+        dialog.setHeaderText("Inserisci i parametri climatici per un'area specifica");
+
+
+        ButtonType insertButtonType = new ButtonType("Inserisci", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(insertButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        ComboBox<CoordinateMonitoraggio> areaComboBox = new ComboBox<>();
+        DatePicker dataPicker = new DatePicker();
+        Spinner<Integer> ventoSpinner = new Spinner<>(0, 300, 0);
+        Spinner<Integer> umiditaSpinner = new Spinner<>(0, 100, 50);
+        Spinner<Integer> pressioneSpinner = new Spinner<>(900, 1100, 1013);
+        Spinner<Integer> temperaturaSpinner = new Spinner<>(-50, 50, 20);
+        Spinner<Integer> precipitazioniSpinner = new Spinner<>(0, 500, 0);
+        Spinner<Integer> altitudineSpinner = new Spinner<>(0, 8000, 0);
+        Spinner<Integer> massaGhiacciaiSpinner = new Spinner<>(0, 1000000, 0);
+        TextArea noteArea = new TextArea();
+        noteArea.setPrefRowCount(3);
+
+        grid.add(new Label("Area:"), 0, 0);
+        grid.add(areaComboBox, 1, 0);
+        grid.add(new Label("Data:"), 0, 1);
+        grid.add(dataPicker, 1, 1);
+        grid.add(new Label("Vento (km/h):"), 0, 2);
+        grid.add(ventoSpinner, 1, 2);
+        grid.add(new Label("Umidità (%):"), 0, 3);
+        grid.add(umiditaSpinner, 1, 3);
+        grid.add(new Label("Pressione (hPa):"), 0, 4);
+        grid.add(pressioneSpinner, 1, 4);
+        grid.add(new Label("Temperatura (°C):"), 0, 5);
+        grid.add(temperaturaSpinner, 1, 5);
+        grid.add(new Label("Precipitazioni (mm):"), 0, 6);
+        grid.add(precipitazioniSpinner, 1, 6);
+        grid.add(new Label("Altitudine ghiacciai (m):"), 0, 7);
+        grid.add(altitudineSpinner, 1, 7);
+        grid.add(new Label("Massa ghiacciai (kg):"), 0, 8);
+        grid.add(massaGhiacciaiSpinner, 1, 8);
+        grid.add(new Label("Note:"), 0, 9);
+        grid.add(noteArea, 1, 9);
+
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == ButtonType.OK) {
+                CoordinateMonitoraggio selectedArea = areaComboBox.getValue();
+                LocalDate selectedDate = dataPicker.getValue();
+                if (selectedArea == null || dataPicker.getValue() == null) {
+                    showAlert(Alert.AlertType.ERROR, "Dati mancanti",
+                            "Campi obbligatori", "Seleziona un'area e una data.");
+                    return null;
+                }
+
+                int vento = ventoSpinner.getValue();
+                int umidita = umiditaSpinner.getValue();
+                int pressione = pressioneSpinner.getValue();
+                int temperatura = temperaturaSpinner.getValue();
+                int precipitazioni = precipitazioniSpinner.getValue();
+                int altitudine = altitudineSpinner.getValue();
+                int massaGhiacciai = massaGhiacciaiSpinner.getValue();
+                String note = noteArea.getText();
+
+                try {
+                    boolean success = service.inserisciParametriClimaticiPerArea(
+                            currentUser.getId(),
+                            selectedArea.getId(),
+                            java.sql.Date.valueOf(selectedDate),
+                            vento,
+                            umidita,
+                            pressione,
+                            temperatura,
+                            precipitazioni,
+                            altitudine,
+                            massaGhiacciai,
+                            note
+                    );
+
+                    if (success) {
+                        showAlert(Alert.AlertType.INFORMATION, "Successo",
+                                "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
+                    } else {
+                        showAlert(Alert.AlertType.ERROR, "Errore",
+                                "Inserimento fallito", "Non è stato possibile inserire i parametri climatici.");
+                    }
+                } catch (RemoteException e) {
+                    showAlert(Alert.AlertType.ERROR, "Errore di connessione",
+                            "Errore del server", "Si è verificato un errore durante l'inserimento dei dati: " + e.getMessage());
+                } catch (Exception e) {
+                    showAlert(Alert.AlertType.ERROR, "Errore imprevisto",
+                            "Si è verificato un errore inaspettato", "Dettagli: " + e.getMessage());
+                    e.printStackTrace(); // Log dell'eccezione per il debugging
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
     }
     private void handleLogout() {
         mainApp.showLoginView();

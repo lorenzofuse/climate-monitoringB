@@ -54,12 +54,12 @@ public class ClientCM extends Application {
     }
 
     private void initRootLayout()  throws IOException{
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/RootLayout.fxml"));
-            rootLayout = loader.load();
-            Scene scene = new Scene(rootLayout);
-            scene.getStylesheets().add(getClass().getResource("/fxml/styles.css").toExternalForm());
-            primaryStage.setScene(scene);
-            primaryStage.show();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/RootLayout.fxml"));
+        rootLayout = loader.load();
+        Scene scene = new Scene(rootLayout);
+        scene.getStylesheets().add(getClass().getResource("/fxml/styles.css").toExternalForm());
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
     }
 

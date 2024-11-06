@@ -730,5 +730,47 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         return null;
     }
 
+    @Override
+    public boolean inserisciParametriClimaticiPerArea(int centroMonitoraggioId, int areaInteresseId, Date dataRilevazione,
+                                                      int vento, int umidita, int pressione, int temperatura,
+                                                      int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException {
+
+        if (dataRilevazione == null || dataRilevazione.after(new Date())) {
+            throw new IllegalArgumentException("La data di rilevazione non può essere null oppure nel futuro");
+        }
+
+        if (vento < 0 || umidita < 0 || umidita > 100 || pressione < 0 || temperatura < -273 ||
+                precipitazioni < 0 || altitudine < -420 || massaGhiacciai < 0) {
+            throw new IllegalArgumentException("Parametri inseriti non validi");
+        }
+
+        String sql = "INSERT INTO parametriclimatici (centro_monitoraggio_id, area_interesse_id, data_rilevazione, vento, umidita, pressione, temperatura, precipitazioni, altitudine, massa_ghiacciai, note) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, centroMonitoraggioId);
+            pstmt.setInt(2, areaInteresseId);
+            pstmt.setDate(3, new java.sql.Date(dataRilevazione.getTime()));
+            pstmt.setInt(4, vento);
+            pstmt.setInt(5, umidita);
+            pstmt.setInt(6, pressione);
+            pstmt.setInt(7, temperatura);
+            pstmt.setInt(8, precipitazioni);
+            pstmt.setInt(9, altitudine);
+            pstmt.setInt(10, massaGhiacciai);
+            pstmt.setString(11, note);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (SQLException e) {
+            System.err.println("Errore nell'inserimento dei parametri climatici per area: " + e.getMessage());
+            e.printStackTrace();
+            throw new RemoteException("Errore nell'inserimento dei parametri climatici per area", e);
+        }
+    }
+
 
 }
