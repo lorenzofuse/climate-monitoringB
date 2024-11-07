@@ -574,7 +574,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         }
     }
 
-
+    @Override
     public boolean inserisciParametriClimatici(int centroMonitoraggioId, Integer areaInteresseId, Integer coordinateMonitoraggioId, Date dataRilevazione,
                                                int vento, int umidita, int pressione, int temperatura,
                                                int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException {
@@ -731,10 +731,10 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
     }
 
     @Override
-    public boolean inserisciParametriClimaticiPerArea(int centroMonitoraggioId, int areaInteresseId, Date dataRilevazione,
-                                                      int vento, int umidita, int pressione, int temperatura,
-                                                      int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException {
-
+    public boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId, Date dataRilevazione,
+                                                     int vento, int umidita, int pressione, int temperatura,
+                                                     int precipitazioni, int altitudine, int massaGhiacciai, String note) {
+        // Validazioni sui parametri
         if (dataRilevazione == null || dataRilevazione.after(new Date())) {
             throw new IllegalArgumentException("La data di rilevazione non può essere null oppure nel futuro");
         }
@@ -751,7 +751,13 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, centroMonitoraggioId);
-            pstmt.setInt(2, areaInteresseId);
+
+            if (areaInteresseId != null) {
+                pstmt.setInt(2, areaInteresseId);
+            } else {
+                pstmt.setNull(2, java.sql.Types.INTEGER);
+            }
+
             pstmt.setDate(3, new java.sql.Date(dataRilevazione.getTime()));
             pstmt.setInt(4, vento);
             pstmt.setInt(5, umidita);
@@ -766,9 +772,29 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Errore nell'inserimento dei parametri climatici per area: " + e.getMessage());
+            System.err.println("Errore nell'inserimento dei parametri climatici: " + e.getMessage());
             e.printStackTrace();
-            throw new RemoteException("Errore nell'inserimento dei parametri climatici per area", e);
+            throw new RuntimeException("Errore nell'inserimento dei parametri climatici", e);
+        }
+    }
+
+    @Override
+    public int getCentroMonitoraggioId(OperatoriRegistrati currentUser) {
+        String sql = "SELECT centro_monitoraggio_id FROM operatoreregistrati WHERE id = ?";
+
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, currentUser.getId());
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("centro_monitoraggio_id");
+            } else {
+                throw new RuntimeException("No centro_monitoraggio_id found for the given user");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving centro_monitoraggio_id: " + e.getMessage());
+            throw new RuntimeException("Error retrieving centro_monitoraggio_id", e);
         }
     }
 

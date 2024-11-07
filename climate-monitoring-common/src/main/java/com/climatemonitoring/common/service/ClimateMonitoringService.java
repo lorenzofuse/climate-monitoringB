@@ -39,10 +39,9 @@ public interface ClimateMonitoringService extends Remote {
 
     Integer getAreaInteresseId(String nomeArea) throws RemoteException;
 
-    boolean inserisciParametriClimaticiPerArea(int centroMonitoraggioId, int areaInteresseId, Date dataRilevazione,
-                                               int vento, int umidita, int pressione, int temperatura,
-                                               int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException;
 
-
-
-    }
+    boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId, Date dataRilevazione,
+                                            int vento, int umidita, int pressione, int temperatura,
+                                            int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException;
+    int getCentroMonitoraggioId(OperatoriRegistrati currentUser) throws RemoteException;
+}

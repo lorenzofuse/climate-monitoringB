@@ -31,6 +31,7 @@ public class MainController {
     @FXML public TextArea operatorResultArea;
     @FXML private TabPane mainTabPane;
     @FXML private ComboBox<CoordinateMonitoraggio> areaComboBox;
+    @FXML private ComboBox<CoordinateMonitoraggio> areaComboBox2 = new ComboBox<>();
     @FXML private TextField areaNameField;
     @FXML private TextField areaStateField;
     @FXML private TextArea climateDataResultArea;
@@ -554,7 +555,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleInsertClimateDataByArea() {
+    private void handleInsertClimateDataByArea() throws RemoteException {
         if (currentUser == null) {
             showAlert(Alert.AlertType.ERROR, "Errore", "Accesso negato", "Effettua il login come operatore");
             return;
@@ -573,7 +574,9 @@ public class MainController {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        ComboBox<CoordinateMonitoraggio> areaComboBox = new ComboBox<>();
+        List<CoordinateMonitoraggio> areeAssociate = service.getAreePerCentroMonitoraggio(currentUser.getId());
+        areaComboBox2.getItems().addAll(areeAssociate);
+
         DatePicker dataPicker = new DatePicker();
         Spinner<Integer> ventoSpinner = new Spinner<>(0, 300, 0);
         Spinner<Integer> umiditaSpinner = new Spinner<>(0, 100, 50);
@@ -586,7 +589,7 @@ public class MainController {
         noteArea.setPrefRowCount(3);
 
         grid.add(new Label("Area:"), 0, 0);
-        grid.add(areaComboBox, 1, 0);
+        grid.add(areaComboBox2, 1, 0);
         grid.add(new Label("Data:"), 0, 1);
         grid.add(dataPicker, 1, 1);
         grid.add(new Label("Vento (km/h):"), 0, 2);
@@ -606,11 +609,11 @@ public class MainController {
         grid.add(new Label("Note:"), 0, 9);
         grid.add(noteArea, 1, 9);
 
-        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+        dialog.getDialogPane().setContent(grid);
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
-                CoordinateMonitoraggio selectedArea = areaComboBox.getValue();
+                CoordinateMonitoraggio selectedArea = areaComboBox2.getValue();
                 LocalDate selectedDate = dataPicker.getValue();
                 if (selectedArea == null || dataPicker.getValue() == null) {
                     showAlert(Alert.AlertType.ERROR, "Dati mancanti",
@@ -618,19 +621,24 @@ public class MainController {
                     return null;
                 }
 
-                int vento = ventoSpinner.getValue();
-                int umidita = umiditaSpinner.getValue();
-                int pressione = pressioneSpinner.getValue();
-                int temperatura = temperaturaSpinner.getValue();
-                int precipitazioni = precipitazioniSpinner.getValue();
-                int altitudine = altitudineSpinner.getValue();
-                int massaGhiacciai = massaGhiacciaiSpinner.getValue();
-                String note = noteArea.getText();
 
                 try {
-                    boolean success = service.inserisciParametriClimaticiPerArea(
-                            currentUser.getId(),
+
+                    Integer areaInteresseId = service.getAreaInteresseId(selectedArea.getNomeCitta());
+
+                    int vento = ventoSpinner.getValue();
+                    int umidita = umiditaSpinner.getValue();
+                    int pressione = pressioneSpinner.getValue();
+                    int temperatura = temperaturaSpinner.getValue();
+                    int precipitazioni = precipitazioniSpinner.getValue();
+                    int altitudine = altitudineSpinner.getValue();
+                    int massaGhiacciai = massaGhiacciaiSpinner.getValue();
+                    String note = noteArea.getText();
+
+
+                    boolean success = service.insertClimateDataForArea(
                             selectedArea.getId(),
+                            areaInteresseId,
                             java.sql.Date.valueOf(selectedDate),
                             vento,
                             umidita,
@@ -641,7 +649,6 @@ public class MainController {
                             massaGhiacciai,
                             note
                     );
-
                     if (success) {
                         showAlert(Alert.AlertType.INFORMATION, "Successo",
                                 "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
@@ -661,7 +668,6 @@ public class MainController {
             return null;
         });
 
-        dialog.showAndWait();
     }
     private void handleLogout() {
         mainApp.showLoginView();
