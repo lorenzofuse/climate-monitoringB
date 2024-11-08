@@ -711,24 +711,24 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
     @Override
     public Integer getAreaInteresseId(String nomeArea) throws RemoteException {
         String sql = "SELECT id FROM areeinteresse WHERE nome = ?";
-
         try {
             Connection conn = dbManager.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
-
             pstmt.setString(1, nomeArea);
-
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("id");
+                } else {
+                    System.err.println("Nessun risultato trovato per l'area con nome: " + nomeArea);
                 }
             }
         } catch (SQLException e) {
+            System.err.println("Errore SQL: " + e.getMessage());
             throw new RemoteException("Errore nel recupero dell'ID dell'area di interesse", e);
         }
-
         return null;
     }
+
 
     @Override
     public boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId, Date dataRilevazione,

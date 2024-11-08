@@ -667,7 +667,7 @@ public class MainController {
             }
             return null;
         });
-
+        dialog.showAndWait();
     }
     private void handleLogout() {
         mainApp.showLoginView();
