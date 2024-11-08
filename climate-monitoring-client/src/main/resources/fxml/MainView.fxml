@@ -79,7 +79,7 @@
                             onAction="#handleInsertClimateDataByArea"
                             styleClass="primary-button"/>
                     <Button text="Inserisci Dati Climatici per Area"
-                            onAction="#handleInsertClimateDataOperatorArea"
+                            onAction="#handleInsertClimateDataByArea"
                             styleClass="primary-button"/>
                     <TextArea fx:id="operatorResultArea"
                               VBox.vgrow="ALWAYS"
