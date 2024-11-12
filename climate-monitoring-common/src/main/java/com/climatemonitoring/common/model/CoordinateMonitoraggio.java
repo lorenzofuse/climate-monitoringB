@@ -12,6 +12,8 @@ public class CoordinateMonitoraggio implements Serializable {
     private double latitudine;
     private double longitudine;
     boolean isAreaInteresse;
+    private Integer centroMonitoraggioId;
+    private String tipo;
 
     public CoordinateMonitoraggio() {}
 
@@ -26,14 +28,17 @@ public class CoordinateMonitoraggio implements Serializable {
     }
 
     public CoordinateMonitoraggio(int id, String nome, String stato, String paese,
-                                  double latitudine, double longitudine, boolean isAreaInteresse) {
+                                  double latitudine, double longitudine,
+                                  Integer centroMonitoraggioId, String tipo) {
         this.id = id;
         this.nomeCitta = nome;
         this.stato = stato;
         this.paese = paese;
         this.latitudine = latitudine;
         this.longitudine = longitudine;
-        this.isAreaInteresse = isAreaInteresse;
+        this.isAreaInteresse = true;
+        this.centroMonitoraggioId = centroMonitoraggioId;
+        this.tipo = tipo;
     }
     public int getId() {
         return id;
@@ -85,7 +90,29 @@ public class CoordinateMonitoraggio implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s, %s (Lat: %.2f, Long: %.2f)", nomeCitta, stato, latitudine, longitudine);
+        if (isAreaInteresse) {
+            return String.format("%s, %s - Tipo: %s (Lat: %.2f, Long: %.2f)",
+                    nomeCitta, stato, tipo, latitudine, longitudine);
+        } else {
+            return String.format("%s, %s (Lat: %.2f, Long: %.2f)",
+                    nomeCitta, stato, latitudine, longitudine);
+        }
+    }
+
+    public Integer getCentroMonitoraggioId() {
+        return centroMonitoraggioId;
+    }
+
+    public void setCentroMonitoraggioId(Integer centroMonitoraggioId) {
+        this.centroMonitoraggioId = centroMonitoraggioId;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 
     public boolean isAreaInteresse() {

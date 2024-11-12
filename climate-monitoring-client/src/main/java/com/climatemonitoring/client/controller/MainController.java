@@ -574,8 +574,9 @@ public class MainController {
         grid.setVgap(10);
         grid.setPadding(new Insets(20, 150, 10, 10));
 
-        List<CoordinateMonitoraggio> areeAssociate = service.getAreePerCentroMonitoraggio(currentUser.getId());
-        areaComboBox2.getItems().addAll(areeAssociate);
+        ComboBox<CoordinateMonitoraggio> areaComboBox = new ComboBox<>();
+        List<CoordinateMonitoraggio> areeInteresse = service.getAreeInteresseOperatore(currentUser.getId());
+        areaComboBox.getItems().addAll(areeInteresse);
 
         DatePicker dataPicker = new DatePicker();
         Spinner<Integer> ventoSpinner = new Spinner<>(0, 300, 0);
@@ -623,9 +624,7 @@ public class MainController {
 
 
                 try {
-
-                    Integer areaInteresseId = service.getAreaInteresseId(selectedArea.getNomeCitta());
-
+                    // Usa direttamente l'ID dell'area selezionata
                     int vento = ventoSpinner.getValue();
                     int umidita = umiditaSpinner.getValue();
                     int pressione = pressioneSpinner.getValue();
@@ -635,10 +634,9 @@ public class MainController {
                     int massaGhiacciai = massaGhiacciaiSpinner.getValue();
                     String note = noteArea.getText();
 
-
                     boolean success = service.insertClimateDataForArea(
                             selectedArea.getId(),
-                            areaInteresseId,
+                            selectedArea.getCentroMonitoraggioId(),
                             java.sql.Date.valueOf(selectedDate),
                             vento,
                             umidita,
@@ -649,6 +647,7 @@ public class MainController {
                             massaGhiacciai,
                             note
                     );
+
                     if (success) {
                         showAlert(Alert.AlertType.INFORMATION, "Successo",
                                 "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
@@ -662,13 +661,15 @@ public class MainController {
                 } catch (Exception e) {
                     showAlert(Alert.AlertType.ERROR, "Errore imprevisto",
                             "Si è verificato un errore inaspettato", "Dettagli: " + e.getMessage());
-                    e.printStackTrace(); // Log dell'eccezione per il debugging
+                    e.printStackTrace();
                 }
             }
             return null;
         });
+
         dialog.showAndWait();
     }
+
     private void handleLogout() {
         mainApp.showLoginView();
         setCurrentUser(null);

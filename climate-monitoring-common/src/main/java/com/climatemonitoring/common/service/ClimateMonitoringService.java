@@ -38,7 +38,8 @@ public interface ClimateMonitoringService extends Remote {
     List<CoordinateMonitoraggio> getAreePerCentroMonitoraggio(int centroMonitoraggioId) throws RemoteException;
 
     Integer getAreaInteresseId(String nomeArea) throws RemoteException;
-    List<String> getAreeInteresseOperatore(int operatoreId) throws RemoteException;
+
+    List<CoordinateMonitoraggio> getAreeInteresseOperatore(int operatoreId) throws RemoteException;
 
 
     boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId, Date dataRilevazione,

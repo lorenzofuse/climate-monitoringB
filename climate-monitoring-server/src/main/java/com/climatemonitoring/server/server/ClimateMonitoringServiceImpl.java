@@ -730,9 +730,14 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
     }
 
     @Override
-    public List<String> getAreeInteresseOperatore(int operatoreId) throws RemoteException {
-        String sql = "SELECT nome FROM areeinteresse WHERE operatore_id = ?";
-        List<String> areeInteresse = new ArrayList<>();
+    public List<CoordinateMonitoraggio> getAreeInteresseOperatore(int operatoreId) throws RemoteException {
+        String sql = """
+            SELECT ai.* 
+            FROM areeinteresse ai
+            INNER JOIN operatoriregistrati op ON ai.centro_monitoraggio_id = op.centro_monitoraggio_id
+            WHERE op.id = ?
+            """;
+        List<CoordinateMonitoraggio> areeInteresse = new ArrayList<>();
 
         try (Connection conn = dbManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -741,19 +746,33 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    areeInteresse.add(rs.getString("nome"));
+                    CoordinateMonitoraggio area = new CoordinateMonitoraggio(
+                            rs.getInt("id"),
+                            rs.getString("nome"),
+                            rs.getString("stato"),
+                            "",
+                            rs.getDouble("latitudine"),
+                            rs.getDouble("longitudine"),
+                            rs.getInt("centro_monitoraggio_id"),
+                            rs.getString("tipo")
+                    );
+                    areeInteresse.add(area);
                 }
+            }
+
+            if (areeInteresse.isEmpty()) {
+                System.out.println("Nessuna area di interesse trovata per l'operatore ID: " + operatoreId);
             }
 
             return areeInteresse;
 
         } catch (SQLException e) {
-            System.err.println("Errore nel recupero delle aree di interesse: " + e.getMessage());
+            String errorMsg = "Errore nel recupero delle aree di interesse per l'operatore " + operatoreId;
+            System.err.println(errorMsg + ": " + e.getMessage());
             e.printStackTrace();
-            throw new RemoteException("Errore nel recupero delle aree di interesse", e);
+            throw new RemoteException(errorMsg, e);
         }
     }
-
     @Override
     public boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId, Date dataRilevazione,
                                                      int vento, int umidita, int pressione, int temperatura,
