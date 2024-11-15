@@ -492,7 +492,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             verificaStmt.setInt(1, operatoreId);
             ResultSet rs = verificaStmt.executeQuery();
 
-            if (rs.next() && rs.getInt(1)>0) {
+            if (rs.next() && rs.getInt(1) > 0) {
                 throw new DuplicateCenterException("L'utente ha già registrato un centro di monitoraggio");
 
             }
@@ -731,16 +731,18 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
     @Override
     public List<CoordinateMonitoraggio> getAreeInteresseOperatore(int operatoreId) throws RemoteException {
-        String sql = """
-            SELECT ai.* 
-            FROM areeinteresse ai
-            INNER JOIN operatoriregistrati op ON ai.centro_monitoraggio_id = op.centro_monitoraggio_id
-            WHERE op.id = ?
-            """;
+
         List<CoordinateMonitoraggio> areeInteresse = new ArrayList<>();
 
+        String query = """
+        SELECT a.*
+        FROM areeinteresse a
+        JOIN operatoriregistrati o ON a.centro_monitoraggio_id = o.centro_monitoraggio_id
+        WHERE o.id = ?
+    """;
+
         try (Connection conn = dbManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setInt(1, operatoreId);
 
@@ -749,11 +751,10 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                     CoordinateMonitoraggio area = new CoordinateMonitoraggio(
                             rs.getInt("id"),
                             rs.getString("nome"),
+                            rs.getInt("centro_monitoraggio_id"),
                             rs.getString("stato"),
-                            "",
                             rs.getDouble("latitudine"),
                             rs.getDouble("longitudine"),
-                            rs.getInt("centro_monitoraggio_id"),
                             rs.getString("tipo")
                     );
                     areeInteresse.add(area);
@@ -762,6 +763,10 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
             if (areeInteresse.isEmpty()) {
                 System.out.println("Nessuna area di interesse trovata per l'operatore ID: " + operatoreId);
+            } else {
+                for (CoordinateMonitoraggio area : areeInteresse) {
+                    System.out.println("Area trovata: " + area.getNomeCitta());
+                }
             }
 
             return areeInteresse;
@@ -773,10 +778,11 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             throw new RemoteException(errorMsg, e);
         }
     }
+
     @Override
     public boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId, Date dataRilevazione,
-                                                     int vento, int umidita, int pressione, int temperatura,
-                                                     int precipitazioni, int altitudine, int massaGhiacciai, String note) {
+                                            int vento, int umidita, int pressione, int temperatura,
+                                            int precipitazioni, int altitudine, int massaGhiacciai, String note) {
         // Validazioni sui parametri
         if (dataRilevazione == null || dataRilevazione.after(new Date())) {
             throw new IllegalArgumentException("La data di rilevazione non può essere null oppure nel futuro");

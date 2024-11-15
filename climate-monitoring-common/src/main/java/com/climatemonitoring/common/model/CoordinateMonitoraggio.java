@@ -40,6 +40,10 @@ public class CoordinateMonitoraggio implements Serializable {
         this.centroMonitoraggioId = centroMonitoraggioId;
         this.tipo = tipo;
     }
+
+    public CoordinateMonitoraggio(int id, String nome, int centroMonitoraggioId, String stato, double latitudine, double longitudine, String tipo) {
+    }
+
     public int getId() {
         return id;
     }

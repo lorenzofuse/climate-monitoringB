@@ -10,6 +10,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.util.List;
@@ -17,24 +18,42 @@ import java.util.List;
 public class MainController {
 
 
-    @FXML private TextField searchField;
-    @FXML private TextField stateField;
-    @FXML public TextField latitudeField;
-    @FXML private TextField longitudeField;
-    @FXML private Button searchButton;
-    @FXML private TextArea resultArea;
-    @FXML private TextArea coordinateResultArea;
-    @FXML private Button logoutButton;
-    @FXML private Tab operatorTab;
-    @FXML private TextField paeseField;
-    @FXML private TextArea paeseResultArea;
-    @FXML public TextArea operatorResultArea;
-    @FXML private TabPane mainTabPane;
-    @FXML private ComboBox<CoordinateMonitoraggio> areaComboBox;
-    @FXML private ComboBox<CoordinateMonitoraggio> areaComboBox2 = new ComboBox<>();
-    @FXML private TextField areaNameField;
-    @FXML private TextField areaStateField;
-    @FXML private TextArea climateDataResultArea;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private TextField stateField;
+    @FXML
+    public TextField latitudeField;
+    @FXML
+    private TextField longitudeField;
+    @FXML
+    private Button searchButton;
+    @FXML
+    private TextArea resultArea;
+    @FXML
+    private TextArea coordinateResultArea;
+    @FXML
+    private Button logoutButton;
+    @FXML
+    private Tab operatorTab;
+    @FXML
+    private TextField paeseField;
+    @FXML
+    private TextArea paeseResultArea;
+    @FXML
+    public TextArea operatorResultArea;
+    @FXML
+    private TabPane mainTabPane;
+    @FXML
+    private ComboBox<CoordinateMonitoraggio> areaComboBox;
+    @FXML
+    private ComboBox<CoordinateMonitoraggio> areaComboBox2 = new ComboBox<>();
+    @FXML
+    private TextField areaNameField;
+    @FXML
+    private TextField areaStateField;
+    @FXML
+    private TextArea climateDataResultArea;
 
     private OperatoriRegistrati currentUser;
     private ClientCM mainApp;
@@ -85,7 +104,7 @@ public class MainController {
         }
 
         try {
-            List<CoordinateMonitoraggio> results =service.cercaAreaGeograficaNome(cityName, stateName);
+            List<CoordinateMonitoraggio> results = service.cercaAreaGeograficaNome(cityName, stateName);
 
             if (results.isEmpty()) {
                 resultArea.setText("Nessun risultato trovato.");
@@ -201,12 +220,12 @@ public class MainController {
     private void handleSearchByCountry() {
         String paese = paeseField.getText().trim();
 
-        if(paese.isEmpty()){
-            showAlert(Alert.AlertType.ERROR,"Errore di ricerca","Campo vuoto","Inserisci il nome del paese");
+        if (paese.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Errore di ricerca", "Campo vuoto", "Inserisci il nome del paese");
             return;
         }
 
-        try{
+        try {
             List<CoordinateMonitoraggio> ris = service.cercaAreaGeograficaPerPaese(paese);
             if (ris.isEmpty()) {
                 paeseResultArea.setText("Nessun risultato trovato.");
@@ -369,7 +388,7 @@ public class MainController {
                     double latitudine = Double.parseDouble(latitudineField.getText().trim());
                     double longitudine = Double.parseDouble(longitudineField.getText().trim());
 
-                    boolean success =service.creaAreaInteresse(
+                    boolean success = service.creaAreaInteresse(
                             currentUser.getId(),
                             cittaField.getText().trim(),
                             statoField.getText().trim(),
@@ -486,7 +505,7 @@ public class MainController {
             if (dialogButton == insertButtonType) {
                 CoordinateMonitoraggio selectedArea = areaComboBox.getValue();
                 LocalDate selectedDate = dataPicker.getValue();
-                if (selectedArea == null || dataPicker.getValue() == null || selectedDate==null) {
+                if (selectedArea == null || dataPicker.getValue() == null || selectedDate == null) {
                     showAlert(Alert.AlertType.ERROR, "Dati mancanti",
                             "Campi obbligatori", "Seleziona un'area e una data.");
                     return null;
@@ -576,6 +595,12 @@ public class MainController {
 
         ComboBox<CoordinateMonitoraggio> areaComboBox = new ComboBox<>();
         List<CoordinateMonitoraggio> areeInteresse = service.getAreeInteresseOperatore(currentUser.getId());
+
+        if (areeInteresse.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Nessuna Area Trovata",
+                    "Non ci sono aree di interesse associate al tuo ID operatore.","Creare delle aree personalizzate dentro l'area riservata all'operatore");
+        }
+
         areaComboBox.getItems().addAll(areeInteresse);
 
         DatePicker dataPicker = new DatePicker();
@@ -590,7 +615,7 @@ public class MainController {
         noteArea.setPrefRowCount(3);
 
         grid.add(new Label("Area:"), 0, 0);
-        grid.add(areaComboBox2, 1, 0);
+        grid.add(areaComboBox, 1, 0);
         grid.add(new Label("Data:"), 0, 1);
         grid.add(dataPicker, 1, 1);
         grid.add(new Label("Vento (km/h):"), 0, 2);
@@ -614,7 +639,7 @@ public class MainController {
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == ButtonType.OK) {
-                CoordinateMonitoraggio selectedArea = areaComboBox2.getValue();
+                CoordinateMonitoraggio selectedArea = areaComboBox.getValue();
                 LocalDate selectedDate = dataPicker.getValue();
                 if (selectedArea == null || dataPicker.getValue() == null) {
                     showAlert(Alert.AlertType.ERROR, "Dati mancanti",
@@ -635,8 +660,8 @@ public class MainController {
                     String note = noteArea.getText();
 
                     boolean success = service.insertClimateDataForArea(
-                            selectedArea.getId(),
                             selectedArea.getCentroMonitoraggioId(),
+                            selectedArea.getId(),
                             java.sql.Date.valueOf(selectedDate),
                             vento,
                             umidita,
