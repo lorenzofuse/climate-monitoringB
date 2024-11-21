@@ -56,7 +56,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.climatemonitoring.server.Main</mainClass>
+                            <mainClass>com.climatemonitoring.server.ServerCM</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
