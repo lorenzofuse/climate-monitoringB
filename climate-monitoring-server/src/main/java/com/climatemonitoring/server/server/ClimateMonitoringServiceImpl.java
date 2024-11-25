@@ -342,11 +342,11 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
 
     @Override
-    public String visualizzaAreaCentroMonitoraggio(int areaId) throws RemoteException {
+    public String visualizzaAreaCentroMonitoraggio(String nome, String stato) throws RemoteException {
         String sql = "SELECT ai.*, cm.nome AS centro_nome " +
                 "FROM areeinteresse ai " +
                 "JOIN centrimonitoraggio cm ON ai.centro_monitoraggio_id = cm.id " +
-                "WHERE ai.id = ?";
+                "WHERE ai.nome = ? AND ai.stato = ?";
 
         StringBuilder result = new StringBuilder();
 
@@ -354,7 +354,8 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             Connection conn = dbManager.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
-            pstmt.setInt(1, areaId);
+            pstmt.setString(1, nome); // Imposta il parametro nome
+            pstmt.setString(2, stato); // Imposta il parametro stato
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {

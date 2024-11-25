@@ -17,7 +17,7 @@ public interface ClimateMonitoringService extends Remote {
 
     String visualizzaAreaGeografica(String nome, String stato) throws RemoteException; //display tab coordinatemonitoraggio (cerca i paesi dentro il file fornito dal prof)
 
-    String visualizzaAreaCentroMonitoraggio(int areaId) throws RemoteException; //display area dentro centromonitoraggio (cerca dalle aree che l'operatore crea)
+    String visualizzaAreaCentroMonitoraggio(String nome, String stato) throws RemoteException; //display area dentro centromonitoraggio (cerca dalle aree che l'operatore crea)
 
     boolean registrazione(String nome, String cognome,String codiceFiscale, String email,String userId, String password) throws RemoteException, SQLException;
 

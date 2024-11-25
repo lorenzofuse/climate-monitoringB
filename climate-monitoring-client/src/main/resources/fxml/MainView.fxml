@@ -63,6 +63,24 @@
                 </VBox>
             </Tab>
 
+            <Tab text="Visualizza Area Centro" closable="false">
+                <VBox spacing="15" styleClass="content-pane">
+                    <HBox spacing="10" alignment="CENTER">
+                        <TextField fx:id="monitoringAreaNameField" promptText="Nome Area" HBox.hgrow="ALWAYS"/>
+                        <TextField fx:id="monitoringAreaStatusField" promptText="Stato" HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="viewMonitoringAreaButton"
+                                text="Visualizza"
+                                onAction="#handleViewMonitoringCenterArea"
+                                styleClass="primary-button"/>
+                    </HBox>
+                    <TextArea fx:id="monitoringAreaResultArea"
+                              VBox.vgrow="ALWAYS"
+                              editable="false"
+                              wrapText="true"/>
+                </VBox>
+            </Tab>
+
+
 
             <Tab fx:id="operatorTab" text="Operatore" closable="false">
                 <VBox spacing="15" styleClass="content-pane">

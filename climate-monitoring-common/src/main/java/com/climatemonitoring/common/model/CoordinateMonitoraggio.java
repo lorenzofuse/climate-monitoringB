@@ -27,21 +27,15 @@ public class CoordinateMonitoraggio implements Serializable {
         this.longitudine = longitudine;
     }
 
-    public CoordinateMonitoraggio(int id, String nome, String stato, String paese,
-                                  double latitudine, double longitudine,
-                                  Integer centroMonitoraggioId, String tipo) {
-        this.id = id;
-        this.nomeCitta = nome;
-        this.stato = stato;
-        this.paese = paese;
-        this.latitudine = latitudine;
-        this.longitudine = longitudine;
-        this.isAreaInteresse = true;
-        this.centroMonitoraggioId = centroMonitoraggioId;
-        this.tipo = tipo;
-    }
 
     public CoordinateMonitoraggio(int id, String nome, int centroMonitoraggioId, String stato, double latitudine, double longitudine, String tipo) {
+        this.id=id;
+        this.nomeCitta=nome;
+        this.centroMonitoraggioId=centroMonitoraggioId;
+        this.stato = stato;
+         this.latitudine = latitudine;
+        this.longitudine = longitudine;
+        this.tipo=tipo;
     }
 
     public int getId() {

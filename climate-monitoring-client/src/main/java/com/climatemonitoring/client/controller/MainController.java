@@ -5,6 +5,7 @@ import com.climatemonitoring.client.ClientCM;
 import com.climatemonitoring.common.model.CoordinateMonitoraggio;
 import com.climatemonitoring.common.service.ClimateMonitoringService;
 import com.climatemonitoring.common.model.OperatoriRegistrati;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
@@ -58,6 +59,14 @@ public class MainController {
     private OperatoriRegistrati currentUser;
     private ClientCM mainApp;
     private ClimateMonitoringService service;
+    @FXML private TextField monitoringAreaNameField;
+    @FXML private TextField monitoringAreaStatusField;
+    @FXML private TextArea monitoringAreaResultArea;
+    @FXML private Button viewMonitoringAreaButton;
+    @FXML
+    private Tab visualizzaAreaCentroTab;
+
+
 
     public MainController() {
     }
@@ -78,6 +87,8 @@ public class MainController {
 
         if (operatorTab != null) {
             operatorTab.setDisable(true);
+            //non vede neanche la visualizzazione del
+
         }
 
         updateAreaComboBox();
@@ -725,4 +736,41 @@ public class MainController {
         alert.showAndWait();
     }
 
+    @FXML
+    private void handleViewMonitoringCenterArea() {
+        String areaName = monitoringAreaNameField.getText().trim();
+        String areaStatus = monitoringAreaStatusField.getText().trim();
+
+        if (areaName.isEmpty() || areaStatus.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR,
+                    "Errore di ricerca",
+                    "Campi vuoti",
+                    "Inserisci sia il nome che lo stato dell'area di interesse.");
+            return;
+        }
+
+        try {
+            // Chiama il metodo del servizio per ottenere i dati dell'area
+            String risultato = service.visualizzaAreaCentroMonitoraggio(areaName, areaStatus);
+
+            if (risultato.equals("Area di interesse non trovata.")) {
+                monitoringAreaResultArea.setText("Nessuna area di interesse trovata con i criteri specificati.");
+            } else {
+                monitoringAreaResultArea.setText(risultato);
+            }
+        } catch (RemoteException e) {
+            handleRemoteException(e, "ricerca dell'area di interesse");
+        }
+    }
+
+
+
+    // Helper method for handling remote exceptions
+    private void handleRemoteException(RemoteException e, String operation) {
+        showAlert(Alert.AlertType.ERROR,
+                "Errore di connessione",
+                "Errore del server",
+                "Si è verificato un errore durante la " + operation + ": " + e.getMessage());
+        e.printStackTrace();
+    }
 }
