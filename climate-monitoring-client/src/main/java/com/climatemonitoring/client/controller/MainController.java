@@ -409,7 +409,7 @@ public class MainController {
 
                     if (success) {
                         showAlert(Alert.AlertType.INFORMATION, "Successo",
-                                "A  rea creata", "L'area è stata creata con successo");
+                                "Area creata", "L'area è stata creata con successo");
                         updateAreaComboBox();
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Errore",

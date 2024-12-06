@@ -210,10 +210,12 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                     result.append("  Longitudine: ").append(rs.getDouble("longitudine")).append("\n");
 
                     int areaId = rs.getInt("id");
-                    boolean hasParametri = appendParametriClimatici(result, areaId);
+                    boolean hasParametri = appendParametriClimatici(result, areaId, "coordinate_monitoraggio_id", "parametriclimatici");
+                    appendCommentiOperatori(result, areaId, "coordinate_monitoraggio_id", "parametriclimatici");
+
 
                     if (hasParametri) {
-                        appendCommentiOperatori(result, areaId);
+                        appendCommentiOperatori(result, areaId,"coordinate_monitoraggio_id", "parametriclimatici");
                     } else {
                         result.append("\nNessun dato climatico disponibile per questa area.\n");
                     }
@@ -230,8 +232,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         return result.toString();
     }
 
-    private boolean appendParametriClimatici(StringBuilder result, int coordinateMonitoraggioId) throws SQLException {
-        //avg
+    private boolean appendParametriClimatici(StringBuilder result, int id, String idColonna, String tabella) throws SQLException {
         String sqlAvg = "SELECT COUNT(*) AS num_rilevazioni, " +
                 "AVG(vento) AS avg_vento, " +
                 "AVG(umidita) AS avg_umidita, " +
@@ -240,35 +241,32 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                 "AVG(precipitazioni) AS avg_precipitazioni, " +
                 "AVG(altitudine) AS avg_altitudine, " +
                 "AVG(massa_ghiacciai) AS avg_massa_ghiacciai " +
-                "FROM parametriclimatici WHERE coordinate_monitoraggio_id = ?";
+                "FROM parametriclimatici " +
+                "WHERE " + idColonna + " = ?";
 
-        //per ogni op
-        String sqlOp = "SELECT p.*, op.nome AS nome_operatore, op.cognome AS cognome_operatore, " +
+
+        String sqlDettaglio = "SELECT p.*, op.nome AS nome_operatore, op.cognome AS cognome_operatore, " +
                 "p.data_rilevazione, p.vento, p.umidita, p.pressione, p.temperatura, " +
                 "p.precipitazioni, p.altitudine, p.massa_ghiacciai, p.note " +
                 "FROM parametriclimatici p " +
                 "JOIN centrimonitoraggio cm ON p.centro_monitoraggio_id = cm.id " +
                 "JOIN operatoriregistrati op ON cm.operatore_id = op.id " +
-                "WHERE p.coordinate_monitoraggio_id = ? " +
+                "WHERE p." + idColonna + " = ? " +
                 "ORDER BY p.data_rilevazione DESC";
 
-        try {
-            Connection conn = dbManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sqlAvg);
 
-            pstmt.setInt(1, coordinateMonitoraggioId);
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmtAvg = conn.prepareStatement(sqlAvg)) {
 
-            ResultSet rs = pstmt.executeQuery();
+            pstmtAvg.setInt(1, id);
+            ResultSet rs = pstmtAvg.executeQuery();
 
             if (rs.next()) {
                 int numRilevazioni = rs.getInt("num_rilevazioni");
 
                 if (numRilevazioni > 0) {
-                    result.append("\n");
-                    result.append("===Riepilogo generale dei dati climatici===\n");
-                    result.append("\n");
-                    result.append("Numero totale di rilevazioni: ").append(numRilevazioni).append("\n");
-                    result.append("\n");
+                    result.append("\n=== Riepilogo generale dei dati climatici ===\n\n");
+                    result.append("Numero totale di rilevazioni: ").append(numRilevazioni).append("\n\n");
                     result.append("Medie dei parametri climatici:\n");
                     result.append("  Vento: ").append(String.format("%.2f", rs.getDouble("avg_vento"))).append(" m/s\n");
                     result.append("  Umidità: ").append(String.format("%.2f", rs.getDouble("avg_umidita"))).append("%\n");
@@ -278,55 +276,54 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                     result.append("  Altitudine: ").append(String.format("%.2f", rs.getDouble("avg_altitudine"))).append(" m\n");
                     result.append("  Massa ghiacciai: ").append(String.format("%.2f", rs.getDouble("avg_massa_ghiacciai"))).append(" kg/m³\n\n");
 
-                    result.append("===Dettaglio rilevazioni per operatore===\n\n");
-                    try {
-                        PreparedStatement pstmtOp = conn.prepareStatement(sqlOp);
-                        pstmtOp.setInt(1, coordinateMonitoraggioId);
+                    result.append("=== Dettaglio rilevazioni per operatore ===\n\n");
 
-                        ResultSet rsDet = pstmtOp.executeQuery();
-                        while (rsDet.next()) {
-                            result.append("Operatore: ").append(rsDet.getString("nome_operatore")).append(" ").append(rsDet.getString("cognome_operatore")).append("\n");
-                            result.append("Data rilevazione: ").append(new SimpleDateFormat("dd/MM/yyyy").format(rsDet.getTimestamp("data_rilevazione"))).append("\n");
-                            result.append("Parametri rilevati:\n");
-                            result.append("  Vento: ").append(String.format("%.2f", rsDet.getDouble("vento"))).append(" m/s\n");
-                            result.append("  Umidità: ").append(String.format("%.2f", rsDet.getDouble("umidita"))).append("%\n");
-                            result.append("  Pressione: ").append(String.format("%.2f", rsDet.getDouble("pressione"))).append(" hPa\n");
-                            result.append("  Temperatura: ").append(String.format("%.2f", rsDet.getDouble("temperatura"))).append(" °C\n");
-                            result.append("  Precipitazioni: ").append(String.format("%.2f", rsDet.getDouble("precipitazioni"))).append(" mm\n");
-                            result.append("  Altitudine: ").append(String.format("%.2f", rsDet.getDouble("altitudine"))).append(" m\n");
-                            result.append("  Massa ghiacciai: ").append(String.format("%.2f", rsDet.getDouble("massa_ghiacciai"))).append(" kg/m³\n");
+                    try (PreparedStatement pstmtDettaglio = conn.prepareStatement(sqlDettaglio)) {
+                        pstmtDettaglio.setInt(1, id);
 
-                            String note = rsDet.getString("note");
-                            if (note != null && !note.trim().isEmpty()) {
-                                result.append("Note: ").append(note).append("\n");
+                        try (ResultSet rsDet = pstmtDettaglio.executeQuery()) {
+                            while (rsDet.next()) {
+                                result.append("Operatore: ").append(rsDet.getString("nome_operatore")).append(" ").append(rsDet.getString("cognome_operatore")).append("\n");
+                                result.append("Data rilevazione: ").append(new SimpleDateFormat("dd/MM/yyyy").format(rsDet.getTimestamp("data_rilevazione"))).append("\n");
+                                result.append("Parametri rilevati:\n");
+                                result.append("  Vento: ").append(String.format("%.2f", rsDet.getDouble("vento"))).append(" m/s\n");
+                                result.append("  Umidità: ").append(String.format("%.2f", rsDet.getDouble("umidita"))).append("%\n");
+                                result.append("  Pressione: ").append(String.format("%.2f", rsDet.getDouble("pressione"))).append(" hPa\n");
+                                result.append("  Temperatura: ").append(String.format("%.2f", rsDet.getDouble("temperatura"))).append(" °C\n");
+                                result.append("  Precipitazioni: ").append(String.format("%.2f", rsDet.getDouble("precipitazioni"))).append(" mm\n");
+                                result.append("  Altitudine: ").append(String.format("%.2f", rsDet.getDouble("altitudine"))).append(" m\n");
+                                result.append("  Massa ghiacciai: ").append(String.format("%.2f", rsDet.getDouble("massa_ghiacciai"))).append(" kg/m³\n");
+
+                                String note = rsDet.getString("note");
+                                if (note != null && !note.trim().isEmpty()) {
+                                    result.append("Note: ").append(note).append("\n");
+                                }
+                                result.append("----------------------------------------\n");
                             }
-                            result.append("----------------------------------------\n");
                         }
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
                     }
                 }
                 return true;
             }
-        } catch (SQLException | RuntimeException e) {
-            throw new RuntimeException(e);
         }
-
         return false;
     }
 
-    private void appendCommentiOperatori(StringBuilder result, int coordinateMonitoraggioId) throws SQLException {
-        String sql = "SELECT note FROM parametriclimatici WHERE coordinate_monitoraggio_id = ? AND note IS NOT NULL AND note != '' ORDER BY data_rilevazione DESC LIMIT 5";
 
-        try {
-            Connection conn = dbManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+    private void appendCommentiOperatori(StringBuilder result, int id, String idColonna, String tabella) throws SQLException {
+        String sql = String.format(
+                "SELECT note FROM %s WHERE %s = ? AND note IS NOT NULL AND note != '' ORDER BY data_rilevazione DESC LIMIT 5",
+                tabella, idColonna);
 
-            pstmt.setInt(1, coordinateMonitoraggioId);
+        try (Connection conn = dbManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
 
             try (ResultSet rs = pstmt.executeQuery()) {
-                result.append("===Commenti recenti degli operatori===\n");
+                result.append("=== Commenti recenti degli operatori ===\n");
                 boolean hasComments = false;
+
                 while (rs.next()) {
                     result.append("- ").append(rs.getString("note")).append("\n");
                     hasComments = true;
@@ -335,18 +332,20 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                     result.append("Nessun commento disponibile.\n");
                 }
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
         }
     }
 
 
+
     @Override
     public String visualizzaAreaCentroMonitoraggio(String nome, String stato) throws RemoteException {
-        String sql = "SELECT ai.*, cm.nome AS centro_nome " +
+        String sql = "SELECT ai.id, ai.nome, ai.centro_monitoraggio_id, ai.stato, ai.latitudine, ai.longitudine, ai.tipo, " +
+                "cm.nome AS centro_nome " +
                 "FROM areeinteresse ai " +
                 "JOIN centrimonitoraggio cm ON ai.centro_monitoraggio_id = cm.id " +
                 "WHERE ai.nome = ? AND ai.stato = ?";
+
+
 
         StringBuilder result = new StringBuilder();
 
@@ -354,20 +353,26 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             Connection conn = dbManager.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
-            pstmt.setString(1, nome); // Imposta il parametro nome
-            pstmt.setString(2, stato); // Imposta il parametro stato
+            pstmt.setString(1, nome);
+            pstmt.setString(2, stato);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
+                    // Aggiungi le informazioni sull'area di interesse
                     result.append("Informazioni Area di Interesse:\n");
                     result.append("ID: ").append(rs.getInt("id")).append("\n");
                     result.append("Nome: ").append(rs.getString("nome")).append("\n");
                     result.append("Centro Monitoraggio: ").append(rs.getString("centro_nome")).append("\n");
                     result.append("Centro Monitoraggio ID: ").append(rs.getInt("centro_monitoraggio_id")).append("\n");
-                    result.append("Operatore ID: ").append(rs.getInt("operatore_id")).append("\n");
                     result.append("Stato: ").append(rs.getString("stato")).append("\n");
                     result.append("Latitudine: ").append(rs.getDouble("latitudine")).append("\n");
                     result.append("Longitudine: ").append(rs.getDouble("longitudine")).append("\n");
+                    result.append("Tipo: ").append(rs.getString("tipo")).append("\n");
+
+                    int coordinateMonitoraggioId = rs.getInt("centro_monitoraggio_id");
+                    appendParametriClimatici(result, coordinateMonitoraggioId, "centro_monitoraggio_id", "parametriclimatici");
+                    appendCommentiOperatori(result, coordinateMonitoraggioId, "centro_monitoraggio_id", "parametriclimatici");
+
                 } else {
                     result.append("Area di interesse non trovata.");
                 }
