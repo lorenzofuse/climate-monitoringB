@@ -38,7 +38,8 @@ public class CoordinateMonitoraggio implements Serializable {
         this.tipo=tipo;
     }
 
-    public int getId() {
+
+    public Integer getId(){
         return id;
     }
 

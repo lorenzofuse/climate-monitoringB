@@ -595,7 +595,6 @@ public class MainController {
         dialog.setTitle("Inserisci Dati Climatici per Area");
         dialog.setHeaderText("Inserisci i parametri climatici per un'area specifica");
 
-
         ButtonType insertButtonType = new ButtonType("Inserisci", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(insertButtonType, ButtonType.CANCEL);
 
@@ -609,7 +608,8 @@ public class MainController {
 
         if (areeInteresse.isEmpty()) {
             showAlert(Alert.AlertType.WARNING, "Nessuna Area Trovata",
-                    "Non ci sono aree di interesse associate al tuo ID operatore.","Creare delle aree personalizzate dentro l'area riservata all'operatore");
+                    "Non ci sono aree di interesse associate al tuo ID operatore.",
+                    "Creare delle aree personalizzate dentro l'area riservata all'operatore");
         }
 
         areaComboBox.getItems().addAll(areeInteresse);
@@ -658,9 +658,7 @@ public class MainController {
                     return null;
                 }
 
-
                 try {
-                    // Usa direttamente l'ID dell'area selezionata
                     int vento = ventoSpinner.getValue();
                     int umidita = umiditaSpinner.getValue();
                     int pressione = pressioneSpinner.getValue();
@@ -687,6 +685,8 @@ public class MainController {
                     if (success) {
                         showAlert(Alert.AlertType.INFORMATION, "Successo",
                                 "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
+
+
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Errore",
                                 "Inserimento fallito", "Non è stato possibile inserire i parametri climatici.");
