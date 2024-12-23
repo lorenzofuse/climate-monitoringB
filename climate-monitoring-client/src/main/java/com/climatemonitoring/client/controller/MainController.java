@@ -8,6 +8,7 @@ import com.climatemonitoring.common.model.OperatoriRegistrati;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -118,7 +119,7 @@ public class MainController {
             List<CoordinateMonitoraggio> results = service.cercaAreaGeograficaNome(cityName, stateName);
 
             if (results.isEmpty()) {
-                resultArea.setText("Nessun risultato trovato.");
+                resultArea.setText("Nessun risultato trovato\nInserisci il nome di una Città e Stato valido");
             } else {
                 StringBuilder sb = new StringBuilder();
                 for (CoordinateMonitoraggio area : results) {
@@ -604,17 +605,26 @@ public class MainController {
         grid.setPadding(new Insets(20, 150, 10, 10));
 
         ComboBox<CoordinateMonitoraggio> areaComboBox = new ComboBox<>();
-        List<CoordinateMonitoraggio> areeInteresse = service.getAreeInteresseOperatore(currentUser.getId());
+        List<CoordinateMonitoraggio> areeInteresse;
 
-        if (areeInteresse.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Nessuna Area Trovata",
-                    "Non ci sono aree di interesse associate al tuo ID operatore.",
-                    "Creare delle aree personalizzate dentro l'area riservata all'operatore");
+        try {
+            areeInteresse = service.getAreeInteresseOperatore(currentUser.getId());
+
+            if (areeInteresse.isEmpty()) {
+                showAlert(Alert.AlertType.WARNING, "Nessuna Area Trovata",
+                        "Non ci sono aree di interesse associate al tuo ID operatore.",
+                        "Creare delle aree personalizzate dentro l'area riservata all'operatore");
+                return; // Esce se non ci sono aree
+            }
+
+            areaComboBox.getItems().addAll(areeInteresse);
+        } catch (RemoteException e) {
+            showAlert(Alert.AlertType.ERROR, "Errore di connessione",
+                    "Impossibile recuperare le aree", e.getMessage());
+            return;
         }
 
-        areaComboBox.getItems().addAll(areeInteresse);
-
-        DatePicker dataPicker = new DatePicker();
+        DatePicker dataPicker = new DatePicker(LocalDate.now()); // Imposta data odierna di default
         Spinner<Integer> ventoSpinner = new Spinner<>(0, 300, 0);
         Spinner<Integer> umiditaSpinner = new Spinner<>(0, 100, 50);
         Spinner<Integer> pressioneSpinner = new Spinner<>(900, 1100, 1013);
@@ -624,6 +634,11 @@ public class MainController {
         Spinner<Integer> massaGhiacciaiSpinner = new Spinner<>(0, 1000000, 0);
         TextArea noteArea = new TextArea();
         noteArea.setPrefRowCount(3);
+
+        // Configurazione editor per gli Spinner
+        configureSpinnerEditable(ventoSpinner, umiditaSpinner, pressioneSpinner,
+                temperaturaSpinner, precipitazioniSpinner,
+                altitudineSpinner, massaGhiacciaiSpinner);
 
         grid.add(new Label("Area:"), 0, 0);
         grid.add(areaComboBox, 1, 0);
@@ -648,45 +663,50 @@ public class MainController {
 
         dialog.getDialogPane().setContent(grid);
 
+        // Validazione input prima di abilitare il pulsante Inserisci
+        Node insertButton = dialog.getDialogPane().lookupButton(insertButtonType);
+        insertButton.setDisable(true);
+
+        // Abilita il pulsante solo quando area e data sono selezionati
+        areaComboBox.valueProperty().addListener((obs, oldVal, newVal) ->
+                insertButton.setDisable(newVal == null || dataPicker.getValue() == null));
+        dataPicker.valueProperty().addListener((obs, oldVal, newVal) ->
+                insertButton.setDisable(newVal == null || areaComboBox.getValue() == null));
+
         dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == ButtonType.OK) {
+            if (dialogButton == insertButtonType) {
                 CoordinateMonitoraggio selectedArea = areaComboBox.getValue();
                 LocalDate selectedDate = dataPicker.getValue();
-                if (selectedArea == null || dataPicker.getValue() == null) {
+
+                if (selectedArea == null || selectedDate == null) {
                     showAlert(Alert.AlertType.ERROR, "Dati mancanti",
                             "Campi obbligatori", "Seleziona un'area e una data.");
                     return null;
                 }
 
                 try {
-                    int vento = ventoSpinner.getValue();
-                    int umidita = umiditaSpinner.getValue();
-                    int pressione = pressioneSpinner.getValue();
-                    int temperatura = temperaturaSpinner.getValue();
-                    int precipitazioni = precipitazioniSpinner.getValue();
-                    int altitudine = altitudineSpinner.getValue();
-                    int massaGhiacciai = massaGhiacciaiSpinner.getValue();
-                    String note = noteArea.getText();
+                    // Log dei valori prima dell'inserimento
+                    System.out.println("Tentativo inserimento dati per area: " + selectedArea.getId());
 
                     boolean success = service.insertClimateDataForArea(
                             selectedArea.getCentroMonitoraggioId(),
                             selectedArea.getId(),
                             java.sql.Date.valueOf(selectedDate),
-                            vento,
-                            umidita,
-                            pressione,
-                            temperatura,
-                            precipitazioni,
-                            altitudine,
-                            massaGhiacciai,
-                            note
+                            ventoSpinner.getValue(),
+                            umiditaSpinner.getValue(),
+                            pressioneSpinner.getValue(),
+                            temperaturaSpinner.getValue(),
+                            precipitazioniSpinner.getValue(),
+                            altitudineSpinner.getValue(),
+                            massaGhiacciaiSpinner.getValue(),
+                            noteArea.getText().trim()
                     );
 
                     if (success) {
                         showAlert(Alert.AlertType.INFORMATION, "Successo",
                                 "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
-
-
+                        // Aggiorna la vista se necessario
+                        // updateView();
                     } else {
                         showAlert(Alert.AlertType.ERROR, "Errore",
                                 "Inserimento fallito", "Non è stato possibile inserire i parametri climatici.");
@@ -694,6 +714,7 @@ public class MainController {
                 } catch (RemoteException e) {
                     showAlert(Alert.AlertType.ERROR, "Errore di connessione",
                             "Errore del server", "Si è verificato un errore durante l'inserimento dei dati: " + e.getMessage());
+                    e.printStackTrace();
                 } catch (Exception e) {
                     showAlert(Alert.AlertType.ERROR, "Errore imprevisto",
                             "Si è verificato un errore inaspettato", "Dettagli: " + e.getMessage());
@@ -704,6 +725,13 @@ public class MainController {
         });
 
         dialog.showAndWait();
+    }
+
+    private void configureSpinnerEditable(Spinner<Integer>... spinners) {
+        for (Spinner<Integer> spinner : spinners) {
+            spinner.setEditable(true);
+            spinner.setPrefWidth(150);
+        }
     }
 
     private void handleLogout() {

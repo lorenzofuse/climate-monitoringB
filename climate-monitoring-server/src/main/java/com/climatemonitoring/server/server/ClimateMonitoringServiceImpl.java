@@ -843,34 +843,30 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
     }
 
     @Override
-    public boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId, Date dataRilevazione,
-                                            int vento, int umidita, int pressione, int temperatura,
-                                            int precipitazioni, int altitudine, int massaGhiacciai, String note) {
-        // Validazioni sui parametri
-        if (dataRilevazione == null || dataRilevazione.after(new Date())) {
-            throw new IllegalArgumentException("La data di rilevazione non può essere null oppure nel futuro");
-        }
+    public boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId,
+                                            Date dataRilevazione, int vento, int umidita, int pressione, int temperatura,
+                                            int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException {
 
-        if (vento < 0 || umidita < 0 || umidita > 100 || pressione < 0 || temperatura < -273 ||
-                precipitazioni < 0 || altitudine < -420 || massaGhiacciai < 0) {
-            throw new IllegalArgumentException("Parametri inseriti non validi");
-        }
-
-        String sql = "INSERT INTO parametriclimatici (centro_monitoraggio_id, area_interesse_id, data_rilevazione, vento, umidita, pressione, temperatura, precipitazioni, altitudine, massa_ghiacciai, note) "
+        String sql = "INSERT INTO parametriclimatici "
+                + "(centro_monitoraggio_id, area_interesse_id, data_rilevazione, "
+                + "vento, umidita, pressione, temperatura, precipitazioni, "
+                + "altitudine, massa_ghiacciai, note) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = dbManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, centroMonitoraggioId);
+            // Log dei valori prima dell'inserimento
+            System.out.println("Inserimento parametri per area " + areaInteresseId
+                    + " del centro " + centroMonitoraggioId);
 
+            pstmt.setInt(1, centroMonitoraggioId);
             if (areaInteresseId != null) {
                 pstmt.setInt(2, areaInteresseId);
             } else {
-                pstmt.setNull(2, java.sql.Types.INTEGER);
+                pstmt.setNull(2, Types.INTEGER);
             }
-
-            pstmt.setDate(3, new java.sql.Date(dataRilevazione.getTime()));
+            pstmt.setTimestamp(3, new Timestamp(dataRilevazione.getTime()));
             pstmt.setInt(4, vento);
             pstmt.setInt(5, umidita);
             pstmt.setInt(6, pressione);
@@ -884,9 +880,11 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             return rowsAffected > 0;
 
         } catch (SQLException e) {
-            System.err.println("Errore nell'inserimento dei parametri climatici: " + e.getMessage());
+            System.err.println("Errore SQL: " + e.getMessage());
+            System.err.println("Stato: " + e.getSQLState());
+            System.err.println("Codice errore: " + e.getErrorCode());
             e.printStackTrace();
-            throw new RuntimeException("Errore nell'inserimento dei parametri climatici", e);
+            throw new RemoteException("Errore nell'inserimento dei parametri climatici", e);
         }
     }
 
