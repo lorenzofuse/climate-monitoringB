@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane styleClass="login-pane" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.climatemonitoring.server.controller.ServerLogin">
+    <center>
+        <VBox alignment="CENTER" spacing="15" maxWidth="400">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <Text styleClass="title-text" text="Climate Monitoring Server"/>
+
+            <VBox styleClass="login-form" spacing="10">
+                <TextField fx:id="hostField" promptText="Host DB (es. localhost:5432)"/>
+                <TextField fx:id="usernameField" promptText="Username DB"/>
+                <PasswordField fx:id="passwordField" promptText="Password DB"/>
+
+                <HBox spacing="10" alignment="CENTER">
+                    <Button fx:id="connectButton" text="Connetti" styleClass="primary-button"/>
+                </HBox>
+            </VBox>
+
+            <VBox alignment="CENTER" spacing="10">
+                <TextArea fx:id="logArea" editable="false" prefRowCount="5"
+                          styleClass="log-area" wrapText="true"/>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

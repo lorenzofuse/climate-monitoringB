@@ -1,9 +1,17 @@
 module com.climatemonitoring.server {
-    requires java.rmi;
+    requires javafx.controls;
+    requires javafx.fxml;
     requires java.sql;
+    requires java.rmi;
     requires com.climatemonitoring.common;
+    requires org.postgresql.jdbc;
 
+    opens com.climatemonitoring.server to javafx.fxml;
+    opens com.climatemonitoring.server.controller to javafx.fxml;
 
-    // Export server packages
-    exports com.climatemonitoring.server.server;
+    exports com.climatemonitoring.server;
+    exports com.climatemonitoring.server.controller;
+    exports com.climatemonitoring.server.server to java.rmi;
+
+    uses com.climatemonitoring.common.service.ClimateMonitoringService;
 }
