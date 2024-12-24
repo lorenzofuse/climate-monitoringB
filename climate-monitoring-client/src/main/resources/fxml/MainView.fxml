@@ -52,7 +52,7 @@
                 </VBox>
             </Tab>
 
-            <Tab text="Visualizza Dati Climatici" closable="false">
+            <Tab text="Visualizza Area Geografica" closable="false">
                 <VBox spacing="15" styleClass="content-pane">
                     <HBox spacing="10" alignment="CENTER">
                         <TextField fx:id="areaNameField" promptText="Nome area" HBox.hgrow="ALWAYS"/>

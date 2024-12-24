@@ -3,7 +3,6 @@ package com.climatemonitoring.server.server;
 import com.climatemonitoring.common.model.OperatoriRegistrati;
 import com.climatemonitoring.common.service.ClimateMonitoringService;
 import com.climatemonitoring.common.model.CoordinateMonitoraggio;
-import com.climatemonitoring.common.exception.DuplicateCenterException;
 import com.climatemonitoring.server.util.DatabaseManager;
 
 import java.rmi.RemoteException;
@@ -397,7 +396,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                     result.append("  Longitudine: ").append(rs.getDouble("longitudine")).append("\n");
                     result.append("  Tipo: ").append(rs.getString("tipo")).append("\n\n");
 
-                    // Usa direttamente l'ID dell'area di interesse
+
                     int areaInteresseId = rs.getInt("id");
                     boolean hasParametri = appendParametriClimatici(result, areaInteresseId, "area_interesse_id");
 
@@ -405,7 +404,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                         result.append("\nNessun dato climatico disponibile per questa area.\n");
                     }
 
-                    // Mostra sempre i commenti, anche se non ci sono parametri climatici
+
                     appendCommentiOperatori(result, areaInteresseId, "area_interesse_id");
                 } else {
                     result.append("Area di interesse non trovata per: ")
@@ -450,6 +449,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
     }
 
 
+    //modificare dentro il db colonna id e mettere il serial (autoincrement) per ora è integer -> se si fa togliere questo metod DA FARE _________________________________________________________________
     //metodo per incrementare gli id, il primo operatore che si registra è l'1, il secondo il 2 ecc
     private int getNextCentroMonitoraggio(Connection conn) throws SQLException {
         String sql = "SELECT COALESCE(MAX(centro_monitoraggio_id), 0) + 1 AS next_id FROM operatoriregistrati";
@@ -463,36 +463,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             e.printStackTrace();
         }
         return 1; //default se non entra
-    }
-
-    public boolean isValidCF(String cf) {
-        if (cf == null || !cf.matches("^[A-Z]{6}[0-9]{2}[ABCDEHLMPRST][0-9]{2}[A-Z][0-9]{3}[A-Z]$")) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean verificaUser(String userId, String password) throws RemoteException {
-        String sql = "SELECT * FROM operatoriregistrati WHERE userid = ? AND password = ?";
-
-        try {
-            Connection conn = dbManager.getConnection();
-            PreparedStatement ptsmt = conn.prepareStatement(sql);
-
-            ptsmt.setString(1, userId);
-            ptsmt.setString(2, password);
-
-            try {
-                ResultSet rs = ptsmt.executeQuery();
-                return rs.next();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException("Error verifying user" + e.getMessage());
-        }
-        return false;
     }
 
 
@@ -535,7 +505,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             ResultSet rs = verificaStmt.executeQuery();
 
             if (rs.next() && rs.getInt(1) > 0) {
-                throw new DuplicateCenterException("L'utente ha già registrato un centro di monitoraggio");
+                throw new RemoteException("L'utente ha già registrato un centro di monitoraggio");
 
             }
 
@@ -560,7 +530,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                 return false;
             }
 
-        } catch (SQLException | DuplicateCenterException e) {
+        } catch (SQLException  e) {
             System.err.println("Errore SQL durante la creazione del centro: " + e.getMessage());
             throw new RemoteException("Errore durante la creazione del centro di monitoraggio", e);
         }
@@ -622,17 +592,10 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                                                int vento, int umidita, int pressione, int temperatura,
                                                int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException {
 
-        // Logging dei parametri in ingresso per debug
-        System.out.println("Inserimento parametri climatici:");
-        System.out.println("Centro Monitoraggio ID: " + centroMonitoraggioId);
-        System.out.println("Area Interesse ID: " + areaInteresseId);
-        System.out.println("Coordinate Monitoraggio ID: " + coordinateMonitoraggioId);
-
         if (dataRilevazione == null || dataRilevazione.after(new Date())) {
             throw new IllegalArgumentException("La data di rilevazione non può essere null oppure nel futuro");
         }
 
-        // Validazione parametri più specifica
         if (vento < 0) throw new IllegalArgumentException("Il vento non può essere negativo");
         if (umidita < 0 || umidita > 100) throw new IllegalArgumentException("L'umidità deve essere tra 0 e 100");
         if (pressione < 0) throw new IllegalArgumentException("La pressione non può essere negativa");
@@ -641,7 +604,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         if (altitudine < -420) throw new IllegalArgumentException("L'altitudine non può essere inferiore a -420m");
         if (massaGhiacciai < 0) throw new IllegalArgumentException("La massa dei ghiacciai non può essere negativa");
 
-        // Verifica che almeno uno tra areaInteresseId e coordinateMonitoraggioId sia non null
         if (areaInteresseId == null && coordinateMonitoraggioId == null) {
             throw new IllegalArgumentException("È necessario specificare almeno un'area di interesse o coordinate di monitoraggio");
         }
@@ -704,7 +666,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
             ResultSet rs = pstmt.executeQuery();
 
-            // Se c'è un risultato, l'autenticazione ha successo
             return rs.next();
 
         } catch (SQLException e) {
@@ -769,27 +730,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         }
 
         return aree;
-    }
-
-    @Override
-    public Integer getAreaInteresseId(String nomeArea) throws RemoteException {
-        String sql = "SELECT id FROM areeinteresse WHERE nome = ?";
-        try {
-            Connection conn = dbManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, nomeArea);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt("id");
-                } else {
-                    System.err.println("Nessun risultato trovato per l'area con nome: " + nomeArea);
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("Errore SQL: " + e.getMessage());
-            throw new RemoteException("Errore nel recupero dell'ID dell'area di interesse", e);
-        }
-        return null;
     }
 
     @Override
@@ -885,26 +825,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             System.err.println("Codice errore: " + e.getErrorCode());
             e.printStackTrace();
             throw new RemoteException("Errore nell'inserimento dei parametri climatici", e);
-        }
-    }
-
-    @Override
-    public int getCentroMonitoraggioId(OperatoriRegistrati currentUser) {
-        String sql = "SELECT centro_monitoraggio_id FROM operatoreregistrati WHERE id = ?";
-
-        try (Connection conn = dbManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, currentUser.getId());
-            ResultSet rs = pstmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt("centro_monitoraggio_id");
-            } else {
-                throw new RuntimeException("No centro_monitoraggio_id found for the given user");
-            }
-        } catch (SQLException e) {
-            System.err.println("Error retrieving centro_monitoraggio_id: " + e.getMessage());
-            throw new RuntimeException("Error retrieving centro_monitoraggio_id", e);
         }
     }
 

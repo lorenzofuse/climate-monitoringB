@@ -17,7 +17,7 @@
             <Text styleClass="title-text" text="Climate Monitoring Server"/>
 
             <VBox styleClass="login-form" spacing="10">
-                <TextField fx:id="hostField" promptText="Host DB (es. localhost:5432)"/>
+                <TextField fx:id="hostField" promptText="Host DB"/>
                 <TextField fx:id="usernameField" promptText="Username DB"/>
                 <PasswordField fx:id="passwordField" promptText="Password DB"/>
 

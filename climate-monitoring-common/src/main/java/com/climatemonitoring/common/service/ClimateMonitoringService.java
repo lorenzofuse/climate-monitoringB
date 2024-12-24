@@ -21,7 +21,6 @@ public interface ClimateMonitoringService extends Remote {
 
     boolean registrazione(String nome, String cognome,String codiceFiscale, String email,String userId, String password) throws RemoteException, SQLException;
 
-    boolean verificaUser(String userId, String password) throws RemoteException;
 
     OperatoriRegistrati getUserById(String userId) throws RemoteException;
 
@@ -37,7 +36,6 @@ public interface ClimateMonitoringService extends Remote {
 
     List<CoordinateMonitoraggio> getAreePerCentroMonitoraggio(int centroMonitoraggioId) throws RemoteException;
 
-    Integer getAreaInteresseId(String nomeArea) throws RemoteException;
 
     List<CoordinateMonitoraggio> getAreeInteresseOperatore(int operatoreId) throws RemoteException;
 
@@ -45,5 +43,4 @@ public interface ClimateMonitoringService extends Remote {
     boolean insertClimateDataForArea(int centroMonitoraggioId, Integer areaInteresseId, Date dataRilevazione,
                                             int vento, int umidita, int pressione, int temperatura,
                                             int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException;
-    int getCentroMonitoraggioId(OperatoriRegistrati currentUser) throws RemoteException;
 }

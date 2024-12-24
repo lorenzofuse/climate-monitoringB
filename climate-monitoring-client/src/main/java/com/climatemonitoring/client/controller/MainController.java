@@ -346,8 +346,9 @@ public class MainController {
                                 "Creazione fallita", "Non è stato possibile creare il centro");
                     }
                 } catch (RemoteException e) {
-                    showAlert(Alert.AlertType.ERROR, "Errore",
-                            "Errore di connessione", "Errore durante la creazione: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Errore creazione centro di monitoraggio",
+                            "Creazione fallita",
+                            "L'utente ha già un centro di monitoraggio");
                 }
             }
             return null;
@@ -635,10 +636,7 @@ public class MainController {
         TextArea noteArea = new TextArea();
         noteArea.setPrefRowCount(3);
 
-        // Configurazione editor per gli Spinner
-        configureSpinnerEditable(ventoSpinner, umiditaSpinner, pressioneSpinner,
-                temperaturaSpinner, precipitazioniSpinner,
-                altitudineSpinner, massaGhiacciaiSpinner);
+
 
         grid.add(new Label("Area:"), 0, 0);
         grid.add(areaComboBox, 1, 0);
@@ -662,16 +660,6 @@ public class MainController {
         grid.add(noteArea, 1, 9);
 
         dialog.getDialogPane().setContent(grid);
-
-        // Validazione input prima di abilitare il pulsante Inserisci
-        Node insertButton = dialog.getDialogPane().lookupButton(insertButtonType);
-        insertButton.setDisable(true);
-
-        // Abilita il pulsante solo quando area e data sono selezionati
-        areaComboBox.valueProperty().addListener((obs, oldVal, newVal) ->
-                insertButton.setDisable(newVal == null || dataPicker.getValue() == null));
-        dataPicker.valueProperty().addListener((obs, oldVal, newVal) ->
-                insertButton.setDisable(newVal == null || areaComboBox.getValue() == null));
 
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == insertButtonType) {
@@ -727,34 +715,12 @@ public class MainController {
         dialog.showAndWait();
     }
 
-    private void configureSpinnerEditable(Spinner<Integer>... spinners) {
-        for (Spinner<Integer> spinner : spinners) {
-            spinner.setEditable(true);
-            spinner.setPrefWidth(150);
-        }
-    }
 
     private void handleLogout() {
         mainApp.showLoginView();
         setCurrentUser(null);
     }
 
-    private void displayResult(List<CoordinateMonitoraggio> results, TextArea targetArea) {
-        if (results.isEmpty()) {
-            targetArea.setText("Nessun risultato trovato");
-        } else {
-            StringBuilder sb = new StringBuilder();
-            for (CoordinateMonitoraggio area : results) {
-                sb.append("Città: ").append(area.getNomeCitta())
-                        .append("\nStato: ").append(area.getStato())
-                        .append("\nPaese: ").append(area.getPaese())
-                        .append("\nLatitudine: ").append(area.getLatitudine())
-                        .append("\nLongitudine: ").append(area.getLongitudine())
-                        .append("\n\n");
-            }
-            targetArea.setText(sb.toString());
-        }
-    }
 
     private void showAlert(Alert.AlertType alertType, String title, String header, String content) {
         Alert alert = new Alert(alertType);
