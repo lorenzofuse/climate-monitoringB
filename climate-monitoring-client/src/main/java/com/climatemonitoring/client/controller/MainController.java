@@ -5,10 +5,8 @@ import com.climatemonitoring.client.ClientCM;
 import com.climatemonitoring.common.model.CoordinateMonitoraggio;
 import com.climatemonitoring.common.service.ClimateMonitoringService;
 import com.climatemonitoring.common.model.OperatoriRegistrati;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
@@ -20,57 +18,36 @@ import java.util.List;
 public class MainController {
 
 
-    @FXML
-    private TextField searchField;
-    @FXML
-    private TextField stateField;
-    @FXML
-    public TextField latitudeField;
-    @FXML
-    private TextField longitudeField;
-    @FXML
-    private Button searchButton;
-    @FXML
-    private TextArea resultArea;
-    @FXML
-    private TextArea coordinateResultArea;
-    @FXML
-    private Button logoutButton;
-    @FXML
-    private Tab operatorTab;
-    @FXML
-    private TextField paeseField;
-    @FXML
-    private TextArea paeseResultArea;
-    @FXML
-    public TextArea operatorResultArea;
-    @FXML
-    private TabPane mainTabPane;
-    @FXML
-    private ComboBox<CoordinateMonitoraggio> areaComboBox;
-    @FXML
-    private ComboBox<CoordinateMonitoraggio> areaComboBox2 = new ComboBox<>();
-    @FXML
-    private TextField areaNameField;
-    @FXML
-    private TextField areaStateField;
-    @FXML
-    private TextArea climateDataResultArea;
-
-    private OperatoriRegistrati currentUser;
-    private ClientCM mainApp;
-    private ClimateMonitoringService service;
+    @FXML private TextField searchField;
+    @FXML private TextField stateField;
+    @FXML public TextField latitudeField;
+    @FXML private TextField longitudeField;
+    @FXML private Button searchButton;
+    @FXML private TextArea resultArea;
+    @FXML private TextArea coordinateResultArea;
+    @FXML private Button logoutButton;
+    @FXML private Tab operatorTab;
+    @FXML private TextField paeseField;
+    @FXML private TextArea paeseResultArea;
+    @FXML public TextArea operatorResultArea;
+    @FXML private TabPane mainTabPane;
+    @FXML private ComboBox<CoordinateMonitoraggio> areaComboBox;
+    @FXML private ComboBox<CoordinateMonitoraggio> areaComboBox2 = new ComboBox<>();
+    @FXML private TextField areaNameField;
+    @FXML private TextField areaStateField;
+    @FXML private TextArea climateDataResultArea;
     @FXML private TextField monitoringAreaNameField;
     @FXML private TextField monitoringAreaStatusField;
     @FXML private TextArea monitoringAreaResultArea;
     @FXML private Button viewMonitoringAreaButton;
-    @FXML
-    private Tab visualizzaAreaCentroTab;
+    @FXML private Tab visualizzaAreaCentroTab;
+
+    private OperatoriRegistrati currentUser;
+    private ClientCM mainApp;
+    private ClimateMonitoringService service;
 
 
-
-    public MainController() {
-    }
+    public MainController() { }
 
     public void setService(ClimateMonitoringService service) {
         this.service = service;
@@ -88,10 +65,7 @@ public class MainController {
 
         if (operatorTab != null) {
             operatorTab.setDisable(true);
-            //non vede neanche la visualizzazione del
-
         }
-
         updateAreaComboBox();
     }
 
@@ -676,7 +650,7 @@ public class MainController {
                     // Log dei valori prima dell'inserimento
                     System.out.println("Tentativo inserimento dati per area: " + selectedArea.getId());
 
-                    boolean success = service.insertClimateDataForArea(
+                    boolean success = service.inserisciParametriClimaticiArea(
                             selectedArea.getCentroMonitoraggioId(),
                             selectedArea.getId(),
                             java.sql.Date.valueOf(selectedDate),
@@ -717,7 +691,7 @@ public class MainController {
 
 
     private void handleLogout() {
-        mainApp.showLoginView();
+        mainApp.loginView();
         setCurrentUser(null);
     }
 

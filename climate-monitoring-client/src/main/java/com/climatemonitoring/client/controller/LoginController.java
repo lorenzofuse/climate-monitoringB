@@ -75,7 +75,7 @@ public class LoginController {
             if (authenticated) {
                 OperatoriRegistrati user = service.getUserById(userId);
                 if (user != null) {
-                    MainController mainController = mainApp.showMainView();
+                    MainController mainController = mainApp.mainView();
                     mainController.setCurrentUser(user);
                 } else {
                     showAlert(Alert.AlertType.ERROR, "Errore di Login",
@@ -93,7 +93,7 @@ public class LoginController {
 
     @FXML
     private void handleGuestLogin() {
-        mainApp.showMainView();
+        mainApp.mainView();
     }
 
     @FXML

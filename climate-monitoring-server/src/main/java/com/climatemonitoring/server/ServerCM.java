@@ -79,7 +79,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
-import java.util.Objects;
 
 public class ServerCM extends Application {
     private Stage primaryStage;
@@ -94,11 +93,11 @@ public class ServerCM extends Application {
 
         try {
             initRootLayout();
-            showLoginView();
+            loginView();
         } catch (Exception e) {
             System.err.println("Errore durante l'inizializzazione:");
             e.printStackTrace();
-            showError("Errore di Inizializzazione",
+            errore("Errore di Inizializzazione",
                     "Impossibile avviare il server",
                     "Dettaglio: " + e.getMessage());
             System.exit(1);
@@ -107,7 +106,6 @@ public class ServerCM extends Application {
 
     private void initRootLayout() throws IOException {
         try {
-            // Stampa il percorso di ricerca della risorsa
             URL resourceUrl = getClass().getResource("/fxml/RootLayout.fxml");
             if (resourceUrl == null) {
                 throw new IOException("Impossibile trovare RootLayout.fxml nel classpath");
@@ -117,7 +115,6 @@ public class ServerCM extends Application {
             FXMLLoader loader = new FXMLLoader(resourceUrl);
             rootLayout = loader.load();
 
-            // Verifica del CSS
             URL cssUrl = getClass().getResource("/fxml/style.css");
             if (cssUrl == null) {
                 System.err.println("Warning: styles.css non trovato");
@@ -134,7 +131,7 @@ public class ServerCM extends Application {
         }
     }
 
-    public void showLoginView() {
+    public void loginView() {
         try {
             URL loginViewUrl = getClass().getResource("/fxml/ServerLogin.fxml");
             if (loginViewUrl == null) {
@@ -154,16 +151,14 @@ public class ServerCM extends Application {
         } catch (IOException e) {
             System.err.println("Errore durante il caricamento della vista di login:");
             e.printStackTrace();
-            showError("Errore di Caricamento",
+            errore("Errore di Caricamento",
                     "Impossibile caricare la vista di login",
                     e.getMessage());
         }
     }
     public void startRMIServer(DatabaseManager dbManager) {
         if (rmiStarted) {
-            showError("Server già avviato",
-                    "Il server RMI è già in esecuzione",
-                    "Non è possibile avviare più istanze del server RMI");
+            errore("Server già avviato", "Il server RMI è già in esecuzione", "Non è possibile avviare più istanze del server RMI");
             return;
         }
 
@@ -174,17 +169,13 @@ public class ServerCM extends Application {
             Naming.rebind("rmi://localhost/ClimateMonitoringService", climateService);
             rmiStarted = true;
 
-            showSuccess("Server Avviato",
-                    "Il server RMI è stato avviato con successo",
-                    "In ascolto sulla porta 1099");
+            successo("Server Avviato", "Il server RMI è stato avviato con successo", "In ascolto sulla porta 1099");
         } catch (Exception e) {
-            showError("Errore RMI",
-                    "Impossibile avviare il server RMI",
-                    e.getMessage());
+            errore("Errore RMI", "Impossibile avviare il server RMI", e.getMessage());
         }
     }
 
-    private void showError(String title, String header, String content) {
+    private void errore(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(header);
@@ -192,7 +183,7 @@ public class ServerCM extends Application {
         alert.showAndWait();
     }
 
-    private void showSuccess(String title, String header, String content) {
+    private void successo(String title, String header, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(header);

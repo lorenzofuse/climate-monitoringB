@@ -2,8 +2,6 @@ package com.climatemonitoring.client;
 
 import com.climatemonitoring.client.controller.LoginController;
 import com.climatemonitoring.client.controller.MainController;
-
-import com.climatemonitoring.client.controller.*;
 import com.climatemonitoring.common.service.ClimateMonitoringService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -11,7 +9,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -29,7 +26,7 @@ public class ClientCM extends Application {
         try{
             initRMIService();
             initRootLayout();
-            showLoginView();
+            loginView();
         }catch(Exception e){
             showError("Errore di Inizializzazione", "Impossibile avviare l'applicazione", "Dettaglio: " + e.getMessage());
             System.exit(1);
@@ -63,7 +60,7 @@ public class ClientCM extends Application {
 
     }
 
-    public void showLoginView() {
+    public void loginView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/LoginView.fxml"));
             BorderPane loginView = loader.load();
@@ -84,7 +81,7 @@ public class ClientCM extends Application {
         }
     }
 
-    public MainController showMainView() {
+    public MainController mainView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/MainView.fxml"));
             BorderPane mainView = loader.load();
@@ -110,14 +107,6 @@ public class ClientCM extends Application {
         alert.setHeaderText(header);
         alert.setContentText(content);
         alert.showAndWait();
-    }
-
-    public static ClimateMonitoringService getService() {
-        return service;
-    }
-
-    public Stage getPrimaryStage() {
-        return primaryStage;
     }
 
     public static void main(String[] args) {

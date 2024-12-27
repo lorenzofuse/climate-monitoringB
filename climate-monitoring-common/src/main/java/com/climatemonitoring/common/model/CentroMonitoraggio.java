@@ -23,7 +23,6 @@ public class CentroMonitoraggio implements Serializable {
         this.provincia = provincia;
     }
 
-    // Getter e setter
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }

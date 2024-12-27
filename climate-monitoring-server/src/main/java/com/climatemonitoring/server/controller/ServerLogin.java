@@ -11,11 +11,8 @@ import javafx.scene.control.TextField;
 public class ServerLogin {
 
     @FXML private TextField hostField;
-
     @FXML private TextField usernameField;
-
     @FXML private PasswordField passwordField;
-
     @FXML private Button connectButton;
     @FXML private TextArea logArea;
 
@@ -23,10 +20,10 @@ public class ServerLogin {
 
     @FXML
     private void initialize() {
-        connectButton.setOnAction(event -> handleConnect());
+        connectButton.setOnAction(event -> handleConnessioni());
     }
 
-    private void handleConnect() {
+    private void handleConnessioni() {
         String host = hostField.getText().trim();
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();
