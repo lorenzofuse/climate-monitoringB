@@ -588,7 +588,7 @@ public class MainController {
             if (areeInteresse.isEmpty()) {
                 showAlert(Alert.AlertType.WARNING, "Nessuna Area Trovata",
                         "Non ci sono aree di interesse associate al tuo ID operatore.",
-                        "Creare delle aree personalizzate dentro l'area riservata all'operatore");
+                        "Crea delle aree all'interno del tuo centro di monitoraggio");
                 return; // Esce se non ci sono aree
             }
 

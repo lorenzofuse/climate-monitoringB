@@ -426,14 +426,11 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
     @Override
     public boolean registrazione(String nome, String cognome, String codiceFiscale, String email, String userId, String password) throws RemoteException {
-        String sql = "INSERT INTO operatoriregistrati (nome, cognome, codice_fiscale, email, userid, password, centro_monitoraggio_id) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO operatoriregistrati (nome, cognome, codice_fiscale, email, userid, password) VALUES (?, ?, ?, ?, ?, ?)";
 
         try {
             Connection conn = dbManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql);
-
-            int centromonitoraggioid = getNextCentroMonitoraggio(conn);
+            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             pstmt.setString(1, nome);
             pstmt.setString(2, cognome);
@@ -441,10 +438,8 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             pstmt.setString(4, email);
             pstmt.setString(5, userId);
             pstmt.setString(6, password);
-            pstmt.setInt(7, centromonitoraggioid);
 
             int rowsAffected = pstmt.executeUpdate();
-
             return rowsAffected > 0;
 
         } catch (SQLException e) {
@@ -452,22 +447,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         }
     }
 
-
-    //modificare dentro il db colonna id e mettere il serial (autoincrement) per ora è integer -> se si fa togliere questo metod DA FARE _________________________________________________________________
-    //metodo per incrementare gli id, il primo operatore che si registra è l'1, il secondo il 2 ecc
-    private int getNextCentroMonitoraggio(Connection conn) throws SQLException {
-        String sql = "SELECT COALESCE(MAX(centro_monitoraggio_id), 0) + 1 AS next_id FROM operatoriregistrati";
-        try {
-            PreparedStatement ptsmt = conn.prepareStatement(sql);
-            ResultSet rs = ptsmt.executeQuery();
-            if (rs.next()) {
-                return rs.getInt("next_id");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 1; //default se non entra
-    }
 
 
     @Override
@@ -501,9 +480,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
     @Override
     public boolean creaCentroMonitoraggio(int operatoreId, String nome, String indirizzo, String cap, String comune, String provincia) throws RemoteException {
-        // Verifica se l'operatore ha già un centro di monitoraggio
         try {
-            // Query per verificare se l'operatore ha già un centro
             String verificaQuery = "SELECT id FROM centrimonitoraggio WHERE operatore_id = ?";
             PreparedStatement verificaStmt = dbManager.getConnection().prepareStatement(verificaQuery);
             verificaStmt.setInt(1, operatoreId);
@@ -511,13 +488,10 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
             if (rs.next() && rs.getInt(1) > 0) {
                 throw new RemoteException("L'utente ha già registrato un centro di monitoraggio");
-
             }
 
-            // Se l'operatore non ha un centro, si crea
-            String query = "INSERT INTO centrimonitoraggio (operatore_id, nome, indirizzo, cap, comune, provincia) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
-            PreparedStatement stmt = dbManager.getConnection().prepareStatement(query);
+            String query = "INSERT INTO centrimonitoraggio (operatore_id, nome, indirizzo, cap, comune, provincia) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement stmt = dbManager.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             stmt.setInt(1, operatoreId);
             stmt.setString(2, nome);
             stmt.setString(3, indirizzo);
@@ -541,7 +515,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         }
     }
 
-
     @Override
     public boolean creaAreaInteresse(int operatoreId, String citta, String stato, double latitudine, double longitudine) throws RemoteException {
         int centroId = getCentroMonitoraggio(operatoreId);
@@ -552,8 +525,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
         try {
             String query = "INSERT INTO areeinteresse (nome, stato, centro_monitoraggio_id, latitudine, longitudine) VALUES (?, ?, ?, ?, ?)";
-
-            PreparedStatement stmt = dbManager.getConnection().prepareStatement(query);
+            PreparedStatement stmt = dbManager.getConnection().prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             stmt.setString(1, citta);
             stmt.setString(2, stato);
             stmt.setInt(3, centroId);
@@ -565,7 +537,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         } catch (SQLException e) {
             throw new RemoteException("Errore durante la creazione dell'area di interesse", e);
         }
-
     }
 
     public int getCentroMonitoraggio(int operatoreId) throws RemoteException {
@@ -594,48 +565,66 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
     public boolean inserisciParametriClimatici(int centroMonitoraggioId, Integer areaInteresseId,
                                                Integer coordinateMonitoraggioId, Date dataRilevazione,
                                                int vento, int umidita, int pressione, int temperatura,
-                                               int precipitazioni, int altitudine, int massaGhiacciai, String note) throws RemoteException {
-
-        if (dataRilevazione == null || dataRilevazione.after(new Date())) {
-            throw new IllegalArgumentException("La data di rilevazione non può essere null oppure nel futuro");
-        }
-
-        if (vento < 0) throw new IllegalArgumentException("Il vento non può essere negativo");
-        if (umidita < 0 || umidita > 100) throw new IllegalArgumentException("L'umidità deve essere tra 0 e 100");
-        if (pressione < 0) throw new IllegalArgumentException("La pressione non può essere negativa");
-        if (temperatura < -273) throw new IllegalArgumentException("La temperatura non può essere inferiore a -273°C");
-        if (precipitazioni < 0) throw new IllegalArgumentException("Le precipitazioni non possono essere negative");
-        if (altitudine < -420) throw new IllegalArgumentException("L'altitudine non può essere inferiore a -420m");
-        if (massaGhiacciai < 0) throw new IllegalArgumentException("La massa dei ghiacciai non può essere negativa");
-
-        if (areaInteresseId == null && coordinateMonitoraggioId == null) {
-            throw new IllegalArgumentException("È necessario specificare almeno un'area di interesse o coordinate di monitoraggio");
-        }
-
-        String sql = "INSERT INTO parametriclimatici (centro_monitoraggio_id, area_interesse_id, " +
-                "coordinate_monitoraggio_id, data_rilevazione, vento, umidita, pressione, " +
-                "temperatura, precipitazioni, altitudine, massa_ghiacciai, note) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
+                                               int precipitazioni, int altitudine, int massaGhiacciai,
+                                               String note) throws RemoteException {
         try {
-            Connection conn = dbManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            // Verifica l'esistenza del centro monitoraggio
+            String checkCentroSql = "SELECT id FROM centrimonitoraggio WHERE id = ?";
+            PreparedStatement checkStmt = dbManager.getConnection().prepareStatement(checkCentroSql);
+            checkStmt.setInt(1, centroMonitoraggioId);
+            ResultSet rs = checkStmt.executeQuery();
+
+            if (!rs.next()) {
+                throw new RemoteException("Il centro di monitoraggio con ID " + centroMonitoraggioId + " non esiste.");
+            }
+
+            // Verifica l'area di interesse se specificata
+            if (areaInteresseId != null) {
+                String checkAreaSql = "SELECT id FROM areeinteresse WHERE id = ?";
+                checkStmt = dbManager.getConnection().prepareStatement(checkAreaSql);
+                checkStmt.setInt(1, areaInteresseId);
+                rs = checkStmt.executeQuery();
+
+                if (!rs.next()) {
+                    throw new RemoteException("L'area di interesse con ID " + areaInteresseId + " non esiste.");
+                }
+            }
+
+            // Verifica le coordinate di monitoraggio se specificate
+            if (coordinateMonitoraggioId != null) {
+                String checkCoordSql = "SELECT id FROM coordinatemonitoraggio WHERE id = ?";
+                checkStmt = dbManager.getConnection().prepareStatement(checkCoordSql);
+                checkStmt.setInt(1, coordinateMonitoraggioId);
+                rs = checkStmt.executeQuery();
+
+                if (!rs.next()) {
+                    throw new RemoteException("Le coordinate di monitoraggio con ID " + coordinateMonitoraggioId + " non esistono.");
+                }
+            }
+
+            // Se tutte le verifiche passano, procedi con l'inserimento
+            String sql = "INSERT INTO parametriclimatici (centro_monitoraggio_id, area_interesse_id, " +
+                    "coordinate_monitoraggio_id, data_rilevazione, vento, umidita, pressione, " +
+                    "temperatura, precipitazioni, altitudine, massa_ghiacciai, note) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            PreparedStatement pstmt = dbManager.getConnection().prepareStatement(sql);
 
             pstmt.setInt(1, centroMonitoraggioId);
 
             if (areaInteresseId != null) {
                 pstmt.setInt(2, areaInteresseId);
             } else {
-                pstmt.setNull(2, java.sql.Types.INTEGER);
+                pstmt.setNull(2, Types.INTEGER);
             }
 
             if (coordinateMonitoraggioId != null) {
                 pstmt.setInt(3, coordinateMonitoraggioId);
             } else {
-                pstmt.setNull(3, java.sql.Types.INTEGER);
+                pstmt.setNull(3, Types.INTEGER);
             }
 
-            pstmt.setTimestamp(4, new java.sql.Timestamp(dataRilevazione.getTime()));
+            pstmt.setTimestamp(4, new Timestamp(dataRilevazione.getTime()));
             pstmt.setInt(5, vento);
             pstmt.setInt(6, umidita);
             pstmt.setInt(7, pressione);
@@ -646,7 +635,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             pstmt.setString(12, note);
 
             int rowsAffected = pstmt.executeUpdate();
-
             return rowsAffected > 0;
 
         } catch (SQLException e) {
