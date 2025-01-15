@@ -44,7 +44,6 @@ public class ServerLogin {
             appendLog("Connessione al database stabilita con successo!");
             mainApp.startRMIServer(dbManager);
 
-            // Disabilita i campi dopo la connessione
             hostField.setDisable(true);
             usernameField.setDisable(true);
             passwordField.setDisable(true);

@@ -1,6 +1,5 @@
 package com.climatemonitoring.client.controller;
 
-
 import com.climatemonitoring.client.ClientCM;
 import com.climatemonitoring.common.model.CoordinateMonitoraggio;
 import com.climatemonitoring.common.service.ClimateMonitoringService;
@@ -10,7 +9,6 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-
 import java.rmi.RemoteException;
 import java.time.LocalDate;
 import java.util.List;
@@ -57,10 +55,9 @@ public class MainController {
         this.mainApp = mainApp;
     }
 
-    //chiamato automaticamente dopo il caricamento del file FXML
     @FXML
     private void initialize() {
-        searchButton.setOnAction(event -> handleSearchNome());
+        searchButton.setOnAction(event -> handlecercaAreaGeograficaNome());
         logoutButton.setOnAction(event -> handleLogout());
 
         if (operatorTab != null) {
@@ -80,7 +77,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleSearchNome() {
+    private void handlecercaAreaGeograficaNome() {
         String cityName = searchField.getText().trim();
         String stateName = stateField.getText().trim();
 
@@ -114,7 +111,7 @@ public class MainController {
 
 
     @FXML
-    private void handleSearchByCoordinates() {
+    private void handlecercaAreaGeograficaCoordinate() {
         String latStr = latitudeField.getText().trim();
         String lonStr = longitudeField.getText().trim();
 
@@ -124,29 +121,23 @@ public class MainController {
         }
 
         try {
-            // Convertiamo le stringhe in double
+
             double latitudine = parseCoordinate(latStr);
             double longitudine = parseCoordinate(lonStr);
 
-            // Validazione dei range
+
             if (!isValidLatitude(latitudine) || !isValidLongitude(longitudine)) {
-                showAlert(Alert.AlertType.ERROR, "Errore di input",
-                        "Coordinate non valide",
-                        "La latitudine deve essere tra -90 e 90, la longitudine tra -180 e 180.");
+                showAlert(Alert.AlertType.ERROR, "Errore di input", "Coordinate non valide", "La latitudine deve essere tra -90 e 90, la longitudine tra -180 e 180.");
                 return;
             }
 
             List<CoordinateMonitoraggio> results = service.cercaAreaGeograficaCoordinate(latitudine, longitudine);
 
-            displayCoordinateResults(results, latitudine, longitudine);
+            displayResCoordinate(results, latitudine, longitudine);
         } catch (NumberFormatException e) {
-            showAlert(Alert.AlertType.ERROR, "Errore di input",
-                    "Formato non valido",
-                    "Inserisci le coordinate nel formato corretto (es: 15.03201 o 45.82832).");
+            showAlert(Alert.AlertType.ERROR, "Errore di input", "Formato non valido", "Inserisci le coordinate nel formato corretto (es: 15.03201 o 45.82832).");
         } catch (RemoteException e) {
-            showAlert(Alert.AlertType.ERROR, "Errore di Connessione",
-                    "Errore del Server",
-                    "Si è verificato un errore durante la ricerca: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Errore di Connessione", "Errore del Server", "Si è verificato un errore durante la ricerca: " + e.getMessage());
         }
     }
 
@@ -164,7 +155,7 @@ public class MainController {
         return lon >= -180 && lon <= 180;
     }
 
-    private void displayCoordinateResults(List<CoordinateMonitoraggio> results, double searchLat, double searchLon) {
+    private void displayResCoordinate(List<CoordinateMonitoraggio> results, double searchLat, double searchLon) {
         if (results.isEmpty()) {
             coordinateResultArea.setText("Nessun risultato trovato nelle vicinanze delle coordinate specificate.");
         } else {
@@ -203,7 +194,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleSearchByCountry() {
+    private void handleRicercaPerStato() {
         String paese = paeseField.getText().trim();
 
         if (paese.isEmpty()) {
@@ -234,7 +225,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleViewClimateData() {
+    private void handleVisualizzaDatiClim() {
         String nome = areaNameField.getText().trim();
         String stato = areaStateField.getText().trim();
 
@@ -262,7 +253,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleCreateMonitoringCenter() {
+    private void handleCreaCentroMonitoraggio() {
         if (currentUser == null) {
             showAlert(Alert.AlertType.ERROR, "Errore", "Accesso negato", "Effettua il login come operatore");
             return;
@@ -332,7 +323,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleCreateArea() {
+    private void handleCreaArea() {
         if (currentUser == null) {
             showAlert(Alert.AlertType.ERROR, "Errore", "Accesso negato", "Effettua il login come operatore");
             return;
@@ -417,15 +408,14 @@ public class MainController {
                 areaComboBox.getItems().clear();
                 areaComboBox.getItems().addAll(aree);
             } catch (RemoteException e) {
-                showAlert(Alert.AlertType.ERROR, "Errore",
-                        "Aggiornamento fallito", "Impossibile aggiornare le aree: " + e.getMessage());
+                showAlert(Alert.AlertType.ERROR, "Errore", "Aggiornamento fallito", "Impossibile aggiornare le aree: " + e.getMessage());
             }
         }
     }
 
 
     @FXML
-    private void handleInsertClimateData() {
+    private void handleInserisciParametri() {
         if (currentUser == null) {
             showAlert(Alert.AlertType.ERROR, "Errore", "Accesso negato", "Effettua il login come operatore");
             return;
@@ -499,7 +489,7 @@ public class MainController {
                 }
 
 
-                if (!validateClimateData(ventoSpinner.getValue(), umiditaSpinner.getValue(),
+                if (!validaDatiClim(ventoSpinner.getValue(), umiditaSpinner.getValue(),
                         pressioneSpinner.getValue(), temperaturaSpinner.getValue(),
                         precipitazioniSpinner.getValue(), altitudineSpinner.getValue(),
                         massaGhiacciaiSpinner.getValue())) {
@@ -548,8 +538,8 @@ public class MainController {
         dialog.showAndWait();
     }
 
-    private boolean validateClimateData(int vento, int umidita, int pressione, int temperatura,
-                                        int precipitazioni, int altitudine, int massaGhiacciai) {
+    private boolean validaDatiClim(int vento, int umidita, int pressione, int temperatura,
+                                   int precipitazioni, int altitudine, int massaGhiacciai) {
         if (vento < 0 || vento > 300) return false;
         if (umidita < 0 || umidita > 100) return false;
         if (pressione < 900 || pressione > 1100) return false;
@@ -561,7 +551,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleInsertClimateDataByArea() throws RemoteException {
+    private void handleInserisciParametriArea() throws RemoteException {
         if (currentUser == null) {
             showAlert(Alert.AlertType.ERROR, "Errore", "Accesso negato", "Effettua il login come operatore");
             return;
@@ -705,7 +695,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleViewMonitoringCenterArea() {
+    private void handleVisualizzaArea() {
         String areaName = monitoringAreaNameField.getText().trim();
         String areaStatus = monitoringAreaStatusField.getText().trim();
 
@@ -733,12 +723,9 @@ public class MainController {
 
 
 
-    // Helper method for handling remote exceptions
+
     private void handleRemoteException(RemoteException e, String operation) {
-        showAlert(Alert.AlertType.ERROR,
-                "Errore di connessione",
-                "Errore del server",
-                "Si è verificato un errore durante la " + operation + ": " + e.getMessage());
+        showAlert(Alert.AlertType.ERROR, "Errore di connessione", "Errore del server", "Si è verificato un errore durante la " + operation + ": " + e.getMessage());
         e.printStackTrace();
     }
 }

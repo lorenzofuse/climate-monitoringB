@@ -41,8 +41,8 @@ public class LoginController {
     @FXML
     private void initialize() {
         loginButton.setOnAction(event -> handleLogin());
-        guestButton.setOnAction(event -> handleGuestLogin());
-        registerButton.setOnAction(event -> showRegistrationDialog());
+        guestButton.setOnAction(event -> handleCittadinoNonRegistrato());
+        registerButton.setOnAction(event -> mostraDialogRegistrazione());
     }
 
     @FXML
@@ -92,12 +92,12 @@ public class LoginController {
     }
 
     @FXML
-    private void handleGuestLogin() {
+    private void handleCittadinoNonRegistrato() {
         mainApp.mainView();
     }
 
     @FXML
-    private void showRegistrationDialog() {
+    private void mostraDialogRegistrazione() {
         Dialog<OperatoriRegistrati> dialog = new Dialog<>();
         dialog.setTitle("Registrazione nuovo operatore");
         dialog.setHeaderText("Inserisci i tuoi dati per registrarti");
