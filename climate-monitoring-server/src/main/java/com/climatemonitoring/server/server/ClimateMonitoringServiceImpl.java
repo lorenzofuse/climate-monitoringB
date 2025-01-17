@@ -374,7 +374,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         }
 
         String sql = "SELECT ai.id, ai.nome, ai.stato, ai.latitudine, ai.longitudine, " +
-                "ai.tipo, ai.centro_monitoraggio_id, cm.nome AS centro_nome " +
+                "ai.centro_monitoraggio_id, cm.nome AS centro_nome " +  // rimosso ai.tipo
                 "FROM areeinteresse ai " +
                 "JOIN centrimonitoraggio cm ON ai.centro_monitoraggio_id = cm.id " +
                 "WHERE ai.nome = ? AND ai.stato = ?";
@@ -398,7 +398,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                     result.append("  Stato: ").append(rs.getString("stato")).append("\n");
                     result.append("  Latitudine: ").append(rs.getDouble("latitudine")).append("\n");
                     result.append("  Longitudine: ").append(rs.getDouble("longitudine")).append("\n");
-                    result.append("  Tipo: ").append(rs.getString("tipo")).append("\n\n");
 
 
                     int areaInteresseId = rs.getInt("id");
@@ -752,8 +751,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                         rs.getInt("centro_monitoraggio_id"),
                         rs.getString("stato"),
                         rs.getDouble("latitudine"),
-                        rs.getDouble("longitudine"),
-                        rs.getString("tipo")
+                        rs.getDouble("longitudine")
                 );
                 areeInteresse.add(area);
             }

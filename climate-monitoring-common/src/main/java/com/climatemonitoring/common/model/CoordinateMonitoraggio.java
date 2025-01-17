@@ -17,6 +17,7 @@ public class CoordinateMonitoraggio implements Serializable {
 
     public CoordinateMonitoraggio() {}
 
+
     public CoordinateMonitoraggio(int id, String nomeCitta, String stato, String paese,
                                   double latitudine, double longitudine) {
         this.id = id;
@@ -28,7 +29,7 @@ public class CoordinateMonitoraggio implements Serializable {
     }
 
 
-    public CoordinateMonitoraggio(int id, String nome, int centroMonitoraggioId, String stato, double latitudine, double longitudine, String tipo) {
+    public CoordinateMonitoraggio(int id, String nome, int centroMonitoraggioId, String stato, double latitudine, double longitudine) {
         this.id=id;
         this.nomeCitta=nome;
         this.centroMonitoraggioId=centroMonitoraggioId;
