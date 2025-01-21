@@ -9,17 +9,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.net.URL;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 public class ServerCM extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
     private DatabaseManager dbManager;
     private static boolean rmiStarted = false;
+    private ClimateMonitoringServiceImpl serviceImpl;
 
     @Override
     public void start(Stage stage) {
@@ -126,11 +130,36 @@ public class ServerCM extends Application {
 
     @Override
     public void stop() {
-        if (dbManager != null) {
-            dbManager.closeConnection();
+        try {
+            if (dbManager != null && rmiStarted) {
+                try {
+                    Registry registry = LocateRegistry.getRegistry(1099);
+                    registry.unbind("ClimateMonitoringService");
+                } catch (Exception e) {
+                    System.err.println("Warning durante l'unbind del servizio: " + e.getMessage());
+                }
+
+                try {
+                    if (serviceImpl != null) {
+                        UnicastRemoteObject.unexportObject(serviceImpl, true);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Warning durante l'unexport del servizio: " + e.getMessage());
+                }
+
+
+                rmiStarted = false;
+                serviceImpl = null;
+
+                dbManager.closeConnection();
+                dbManager = null;
+
+                System.out.println("Server RMI arrestato con successo");
+            }
+        } catch (Exception e) {
+            System.err.println("Errore durante la chiusura del server: " + e.getMessage());
         }
     }
-
     public static void main(String[] args) {
         launch(args);
     }

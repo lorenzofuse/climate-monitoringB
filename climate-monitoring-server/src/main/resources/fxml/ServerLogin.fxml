@@ -22,8 +22,10 @@
                 <PasswordField fx:id="passwordField" promptText="Password DB"/>
 
                 <HBox spacing="10" alignment="CENTER">
-                    <Button fx:id="connectButton" text="Connetti" styleClass="primary-button"/>
-                </HBox>
+                <Button fx:id="connectButton" text="Connetti" styleClass="primary-button"/>
+                <Button fx:id="disconnectButton" text="Disconnetti" styleClass="secondary-button" disable="true"/>
+            </HBox>
+
             </VBox>
 
             <VBox alignment="CENTER" spacing="10">

@@ -10,10 +10,12 @@ import javafx.scene.control.TextField;
 
 public class ServerLogin {
 
+
     @FXML private TextField hostField;
     @FXML private TextField usernameField;
     @FXML private PasswordField passwordField;
     @FXML private Button connectButton;
+    @FXML public Button disconnectButton;
     @FXML private TextArea logArea;
 
     private ServerCM mainApp;
@@ -21,6 +23,8 @@ public class ServerLogin {
     @FXML
     private void initialize() {
         connectButton.setOnAction(event -> handleConnessioni());
+        disconnectButton.setOnAction(event -> handleDisconnessione());
+        disconnectButton.setDisable(true);  // Il bottone di disconnessione parte disabilitato
     }
 
     private void handleConnessioni() {
@@ -48,9 +52,34 @@ public class ServerLogin {
             usernameField.setDisable(true);
             passwordField.setDisable(true);
             connectButton.setDisable(true);
+            disconnectButton.setDisable(false);
 
         } catch (Exception e) {
             appendLog("Errore durante la connessione al database: " + e.getMessage());
+        }
+    }
+
+    private void handleDisconnessione() {
+        try {
+            if (mainApp != null) {
+                mainApp.stop();
+            }
+
+            hostField.setDisable(false);
+            usernameField.setDisable(false);
+            passwordField.setDisable(false);
+            connectButton.setDisable(false);
+            disconnectButton.setDisable(true);
+
+            appendLog("Disconnessione dal database effettuata con successo");
+
+
+            hostField.clear();
+            usernameField.clear();
+            passwordField.clear();
+
+        } catch (Exception e) {
+            appendLog("Errore durante la disconnessione: " + e.getMessage());
         }
     }
 
