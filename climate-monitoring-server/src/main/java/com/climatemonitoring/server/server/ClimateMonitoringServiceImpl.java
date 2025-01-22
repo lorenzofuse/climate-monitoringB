@@ -374,7 +374,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         }
 
         String sql = "SELECT ai.id, ai.nome, ai.stato, ai.latitudine, ai.longitudine, " +
-                "ai.centro_monitoraggio_id, cm.nome AS centro_nome " +  // rimosso ai.tipo
+                "ai.centro_monitoraggio_id, cm.nome AS centro_nome " +
                 "FROM areeinteresse ai " +
                 "JOIN centrimonitoraggio cm ON ai.centro_monitoraggio_id = cm.id " +
                 "WHERE ai.nome = ? AND ai.stato = ?";
@@ -672,33 +672,35 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
     public List<CoordinateMonitoraggio> getAreePerCentroMonitoraggio(int centroMonitoraggioId) throws RemoteException {
         List<CoordinateMonitoraggio> aree = new ArrayList<>();
 
-        String queryAreeInteresse = "SELECT a.* FROM areeinteresse a " +
-                "WHERE a.centro_monitoraggio_id = ?";
-
+//        String query = """
+//        SELECT a.*
+//        FROM areeinteresse a
+//        WHERE a.centro_monitoraggio_id = ?
+//    """;
         String queryCoordinate = "SELECT * FROM coordinatemonitoraggio";
 
         try {
             Connection conn = dbManager.getConnection();
-            PreparedStatement pstmtAree = conn.prepareStatement(queryAreeInteresse);
+//            PreparedStatement pstmtAree = conn.prepareStatement(query);
             PreparedStatement pstmtCoord = conn.prepareStatement(queryCoordinate);
 
-            pstmtAree.setInt(1, centroMonitoraggioId);
-            try {
-                ResultSet rsAree = pstmtAree.executeQuery();
-                while (rsAree.next()) {
-                    CoordinateMonitoraggio area = new CoordinateMonitoraggio(
-                            rsAree.getInt("id"),
-                            rsAree.getString("nome"),
-                            rsAree.getString("stato"),
-                            "", // paese non presente nelle aree di interesse
-                            rsAree.getDouble("latitudine"),
-                            rsAree.getDouble("longitudine")
-                    );
-                    aree.add(area);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+//            pstmtAree.setInt(1, centroMonitoraggioId);
+//            try {
+//                ResultSet rsAree = pstmtAree.executeQuery();
+//                while (rsAree.next()) {
+//                    CoordinateMonitoraggio area = new CoordinateMonitoraggio(
+//                            rsAree.getInt("id"),
+//                            rsAree.getString("nome"),
+//                            rsAree.getString("stato"),
+//                            "", // paese non presente nelle aree di interesse
+//                            rsAree.getDouble("latitudine"),
+//                            rsAree.getDouble("longitudine")
+//                    );
+//                    aree.add(area);
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
 
             try {
                 ResultSet rsCoord = pstmtCoord.executeQuery();
@@ -731,11 +733,10 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
         List<CoordinateMonitoraggio> areeInteresse = new ArrayList<>();
 
         String query = """
-                SELECT a.*
-                FROM areeinteresse a
-                JOIN operatoriregistrati o ON a.centro_monitoraggio_id = o.centro_monitoraggio_id
-                WHERE o.id = ?
-                """;
+        SELECT a.* 
+        FROM areeinteresse a 
+        WHERE a.centro_monitoraggio_id = ?
+    """;
 
         try {
             Connection conn = dbManager.getConnection();

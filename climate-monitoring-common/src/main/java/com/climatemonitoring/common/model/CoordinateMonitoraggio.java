@@ -36,7 +36,7 @@ public class CoordinateMonitoraggio implements Serializable {
         this.stato = stato;
          this.latitudine = latitudine;
         this.longitudine = longitudine;
-        this.tipo=tipo;
+
     }
 
 
