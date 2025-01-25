@@ -50,5 +50,8 @@
                 </executions>
             </plugin>
         </plugins>
+
+        <defaultGoal>assembly:single</defaultGoal>
+
     </build>
 </project>

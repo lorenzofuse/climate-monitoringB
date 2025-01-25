@@ -58,6 +58,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
+
+
                 <configuration>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -104,5 +106,8 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <defaultGoal>assembly:single</defaultGoal>
+
     </build>
 </project>

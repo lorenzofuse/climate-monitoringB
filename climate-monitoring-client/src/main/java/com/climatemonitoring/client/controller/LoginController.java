@@ -49,16 +49,12 @@ public class LoginController {
     private void handleLogin() {
 
         if (service == null) {
-            showAlert(Alert.AlertType.ERROR, "Errore di Sistema",
-                    "Servizio non inizializzato",
-                    "Si è verificato un errore di inizializzazione del servizio.");
+            showAlert(Alert.AlertType.ERROR, "Errore di Sistema","Servizio non inizializzato", "Si è verificato un errore di inizializzazione del servizio.");
             return;
         }
 
         if (mainApp == null) {
-            showAlert(Alert.AlertType.ERROR, "Errore di Sistema",
-                    "Applicazione non inizializzata",
-                    "Si è verificato un errore di inizializzazione dell'applicazione.");
+            showAlert(Alert.AlertType.ERROR, "Errore di Sistema", "Applicazione non inizializzata", "Si è verificato un errore di inizializzazione dell'applicazione.");
             return;
         }
 
@@ -71,23 +67,20 @@ public class LoginController {
         }
 
         try {
-            boolean authenticated = service.autenticaOperatore(userId, password);
-            if (authenticated) {
+            boolean autentica = service.autenticaOperatore(userId, password);
+            if (autentica) {
                 OperatoriRegistrati user = service.getUserById(userId);
                 if (user != null) {
                     MainController mainController = mainApp.mainView();
                     mainController.setCurrentUser(user);
                 } else {
-                    showAlert(Alert.AlertType.ERROR, "Errore di Login",
-                            "Utente non trovato", "Impossibile recuperare i dati dell'utente.");
+                    showAlert(Alert.AlertType.ERROR, "Errore di Login", "Utente non trovato", "Impossibile recuperare i dati dell'utente.");
                 }
             } else {
-                showAlert(Alert.AlertType.ERROR, "Errore di Login",
-                        "Credenziali non valide", "Username o password non corretti.");
+                showAlert(Alert.AlertType.ERROR, "Errore di Login", "Credenziali non valide", "Username o password non corretti.");
             }
         } catch (RemoteException e) {
-            showAlert(Alert.AlertType.ERROR, "Errore di Connessione",
-                    "Errore del Server", "Si è verificato un errore durante il login: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Errore di Connessione", "Errore del Server", "Si è verificato un errore durante il login: " + e.getMessage());
         }
     }
 
@@ -102,8 +95,8 @@ public class LoginController {
         dialog.setTitle("Registrazione nuovo operatore");
         dialog.setHeaderText("Inserisci i tuoi dati per registrarti");
 
-        ButtonType registraButtonType = new ButtonType("Registra", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(registraButtonType, ButtonType.CANCEL);
+        ButtonType registraBtn = new ButtonType("Registra", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(registraBtn, ButtonType.CANCEL);
 
         VBox content = new VBox(10);
         TextField nomeField = new TextField();
@@ -131,7 +124,7 @@ public class LoginController {
         dialog.getDialogPane().setContent(content);
 
         dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == registraButtonType) {
+            if (dialogButton == registraBtn) {
                 try {
                     String nome = nomeField.getText();
                     String cognome = cognomeField.getText();
@@ -140,58 +133,47 @@ public class LoginController {
                     String userId = newUserIdField.getText();
                     String password = newPasswordField.getText();
 
-                    // Validazione lato client
+
                     if (!isValidNome(nome)) {
-                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Nome non valido",
-                                "Il nome deve contenere almeno 2 caratteri e solo lettere.");
+                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Nome non valido", "Il nome deve contenere almeno 2 caratteri e solo lettere.");
                         return null;
                     }
 
                     if (!isValidCognome(cognome)) {
-                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Cognome non valido",
-                                "Il cognome deve contenere almeno 2 caratteri e solo lettere.");
+                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Cognome non valido", "Il cognome deve contenere almeno 2 caratteri e solo lettere.");
                         return null;
                     }
 
                     if (!isValidCF(codiceFiscale)) {
-                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Codice Fiscale non valido",
-                                "Inserisci un codice fiscale valido.");
+                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Codice Fiscale non valido", "Inserisci un codice fiscale valido.");
                         return null;
                     }
 
                     if (!isValidEmail(email)) {
-                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Email non valida",
-                                "Inserisci un'email valida.");
+                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Email non valida", "Inserisci un'email valida.");
                         return null;
                     }
 
                     if (!isValidUserId(userId)) {
-                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "User ID non valido",
-                                "L'User ID deve contenere almeno 5 caratteri alfanumerici.");
+                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "User ID non valido", "L'User ID deve contenere almeno 5 caratteri alfanumerici.");
                         return null;
                     }
 
                     if (!isValidPassword(password)) {
-                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Password non valida",
-                                "La password deve essere lunga almeno 8 caratteri e contenere lettere, numeri e un carattere speciale.");
+                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Password non valida", "La password deve essere lunga almeno 8 caratteri e contenere lettere, numeri e un carattere speciale.");
                         return null;
                     }
 
-                    // Invia i dati al server
-                    boolean registrationSuccess = service.registrazione(nome, cognome, codiceFiscale, email, userId, password);
-                    if (registrationSuccess) {
-                        showAlert(Alert.AlertType.INFORMATION, "Registrazione Completata",
-                                "Registrazione avvenuta con successo.",
-                                "Puoi ora effettuare il login con le tue credenziali.");
+                    boolean registrazioneSucc = service.registrazione(nome, cognome, codiceFiscale, email, userId, password);
+                    if (registrazioneSucc) {
+                        showAlert(Alert.AlertType.INFORMATION, "Registrazione Completata", "Registrazione avvenuta con successo.", "Puoi ora effettuare il login con le tue credenziali.");
                         return new OperatoriRegistrati(0, nome, cognome, codiceFiscale, email, userId, password);
                     } else {
-                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Registrazione fallita",
-                                "Si è verificato un errore durante la registrazione.");
+                        showAlert(Alert.AlertType.ERROR, "Errore Registrazione", "Registrazione fallita", "Si è verificato un errore durante la registrazione.");
                         return null;
                     }
                 } catch (SQLException | RemoteException e) {
-                    showAlert(Alert.AlertType.ERROR, "Errore di Connessione", "Errore del Server",
-                            "Si è verificato un errore durante la registrazione: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Errore di Connessione", "Errore del Server", "Si è verificato un errore durante la registrazione: " + e.getMessage());
                     return null;
                 }
             }
@@ -212,7 +194,6 @@ public class LoginController {
     private boolean isValidCF(String codiceFiscale) {
         return codiceFiscale != null && codiceFiscale.matches("^[A-Z0-9]{16}$");
     }
-
 
     private boolean isValidEmail(String email) {
         return email != null && email.matches("^[\\w.-]+@[\\w.-]+\\.[a-zA-Z]{2,}$");

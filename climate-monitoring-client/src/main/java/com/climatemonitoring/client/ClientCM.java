@@ -75,8 +75,7 @@ public class ClientCM extends Application {
             }
         } catch (IOException e) {
             System.err.println("Errore durante il caricamento della vista di login: " + e.getMessage());
-            showError("Errore di Caricamento",
-                    "Impossibile caricare la vista di login",
+            showError("Errore di Caricamento", "Impossibile caricare la vista di login",
                     e.getMessage());
         }
     }
@@ -94,8 +93,7 @@ public class ClientCM extends Application {
             return controller;
         } catch (IOException e) {
             System.err.println("Errore durante il caricamento della vista principale: " + e.getMessage());
-            showError("Errore di Caricamento",
-                    "Impossibile caricare la vista principale",
+            showError("Errore di Caricamento", "Impossibile caricare la vista principale",
                     e.getMessage());
             return null;
         }

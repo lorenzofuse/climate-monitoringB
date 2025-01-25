@@ -29,8 +29,8 @@
             <Separator/>
 
             <VBox alignment="CENTER" spacing="10">
-                <Text text="Oppure continua come ospite"/>
-                <Button fx:id="guestButton" text="Accesso Ospite" styleClass="guest-button"/>
+                <Text text="Oppure continua come cittadino"/>
+                <Button fx:id="guestButton" text="Accesso Cittadino" styleClass="guest-button"/>
             </VBox>
         </VBox>
     </center>

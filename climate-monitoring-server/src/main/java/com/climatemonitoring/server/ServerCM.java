@@ -107,6 +107,7 @@ public class ServerCM extends Application {
             rmiStarted = true;
 
             successo("Server Avviato", "Il server RMI è stato avviato con successo", "In ascolto sulla porta 1099");
+
         } catch (Exception e) {
             errore("Errore RMI", "Impossibile avviare il server RMI", e.getMessage());
         }
@@ -147,7 +148,6 @@ public class ServerCM extends Application {
                     System.err.println("Warning durante l'unexport del servizio: " + e.getMessage());
                 }
 
-
                 rmiStarted = false;
                 serviceImpl = null;
 
@@ -158,7 +158,10 @@ public class ServerCM extends Application {
             }
         } catch (Exception e) {
             System.err.println("Errore durante la chiusura del server: " + e.getMessage());
+        }finally {
+            System.exit(0);
         }
+
     }
     public static void main(String[] args) {
         launch(args);

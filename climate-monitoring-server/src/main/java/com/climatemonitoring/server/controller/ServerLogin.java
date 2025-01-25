@@ -24,7 +24,7 @@ public class ServerLogin {
     private void initialize() {
         connectButton.setOnAction(event -> handleConnessioni());
         disconnectButton.setOnAction(event -> handleDisconnessione());
-        disconnectButton.setDisable(true);  // Il bottone di disconnessione parte disabilitato
+        disconnectButton.setDisable(true);
     }
 
     private void handleConnessioni() {

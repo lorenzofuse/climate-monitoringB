@@ -63,14 +63,14 @@ public class MainController {
         if (operatorTab != null) {
             operatorTab.setDisable(true);
         }
-        updateAreaComboBox();
+        aggiornaAree();
     }
 
     public void setCurrentUser(OperatoriRegistrati user) {
         this.currentUser = user;
         if (user != null && operatorTab != null) {
             operatorTab.setDisable(false);
-            updateAreaComboBox();
+            aggiornaAree();
         } else {
             operatorTab.setDisable(true);
         }
@@ -78,16 +78,16 @@ public class MainController {
 
     @FXML
     private void handlecercaAreaGeograficaNome() {
-        String cityName = searchField.getText().trim();
-        String stateName = stateField.getText().trim();
+        String nomeCitta = searchField.getText().trim();
+        String nomeStato = stateField.getText().trim();
 
-        if (cityName.isEmpty() || stateName.isEmpty()) {
+        if (nomeCitta.isEmpty() || nomeStato.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Errore di Ricerca", "Campi vuoti", "Inserisci sia la città che lo stato.");
             return;
         }
 
         try {
-            List<CoordinateMonitoraggio> results = service.cercaAreaGeograficaNome(cityName, stateName);
+            List<CoordinateMonitoraggio> results = service.cercaAreaGeograficaNome(nomeCitta, nomeStato);
 
             if (results.isEmpty()) {
                 resultArea.setText("Nessun risultato trovato\nInserisci il nome di una Città e Stato valido");
@@ -104,8 +104,7 @@ public class MainController {
                 resultArea.setText(sb.toString());
             }
         } catch (RemoteException e) {
-            showAlert(Alert.AlertType.ERROR, "Errore di Connessione", "Errore del Server",
-                    "Si è verificato un errore durante la ricerca: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Errore di Connessione", "Errore del Server", "Si è verificato un errore durante la ricerca: " + e.getMessage());
         }
     }
 
@@ -304,16 +303,12 @@ public class MainController {
                     );
 
                     if (success) {
-                        showAlert(Alert.AlertType.INFORMATION, "Successo",
-                                "Centro creato", "Il centro è stato creato con successo");
+                        showAlert(Alert.AlertType.INFORMATION, "Successo", "Centro creato", "Il centro è stato creato con successo");
                     } else {
-                        showAlert(Alert.AlertType.ERROR, "Errore",
-                                "Creazione fallita", "Non è stato possibile creare il centro");
+                        showAlert(Alert.AlertType.ERROR, "Errore", "Creazione fallita", "Non è stato possibile creare il centro");
                     }
                 } catch (RemoteException e) {
-                    showAlert(Alert.AlertType.ERROR, "Errore creazione centro di monitoraggio",
-                            "Creazione fallita",
-                            "L'utente ha già un centro di monitoraggio");
+                    showAlert(Alert.AlertType.ERROR, "Errore creazione centro di monitoraggio", "Creazione fallita", "L'utente ha già un centro di monitoraggio");
                 }
             }
             return null;
@@ -375,23 +370,18 @@ public class MainController {
                     );
 
                     if (success) {
-                        showAlert(Alert.AlertType.INFORMATION, "Successo",
-                                "Area creata", "L'area è stata creata con successo");
-                        updateAreaComboBox();
+                        showAlert(Alert.AlertType.INFORMATION, "Successo", "Area creata", "L'area è stata creata con successo");
+                        aggiornaAree();
                     } else {
-                        showAlert(Alert.AlertType.ERROR, "Errore",
-                                "Creazione fallita", "Non è stato possibile creare l'area");
+                        showAlert(Alert.AlertType.ERROR, "Errore", "Creazione fallita", "Non è stato possibile creare l'area");
                     }
                 } catch (NumberFormatException e) {
-                    showAlert(Alert.AlertType.ERROR, "Errore",
-                            "Formato non valido", "Inserisci coordinate numeriche valide");
+                    showAlert(Alert.AlertType.ERROR, "Errore", "Formato non valido", "Inserisci coordinate numeriche valide");
                 } catch (RemoteException e) {
                     if (e.getMessage().contains("non ha un centro di monitoraggio")) {
-                        showAlert(Alert.AlertType.ERROR, "Errore",
-                                "Centro mancante", "Crea prima un centro di monitoraggio");
+                        showAlert(Alert.AlertType.ERROR, "Errore", "Centro mancante", "Crea prima un centro di monitoraggio");
                     } else {
-                        showAlert(Alert.AlertType.ERROR, "Errore",
-                                "Errore di connessione", "Errore durante la creazione: " + e.getMessage());
+                        showAlert(Alert.AlertType.ERROR, "Errore", "Errore di connessione", "Errore durante la creazione: " + e.getMessage());
                     }
                 }
             }
@@ -401,7 +391,7 @@ public class MainController {
         dialog.showAndWait();
     }
 
-    private void updateAreaComboBox() {
+    private void aggiornaAree() {
         if (areaComboBox != null && currentUser != null) {
             try {
                 List<CoordinateMonitoraggio> aree = service.getAreePerCentroMonitoraggio(currentUser.getId());
@@ -421,13 +411,12 @@ public class MainController {
             return;
         }
 
-
         Dialog<Void> dialog = new Dialog<>();
         dialog.setTitle("Inserisci Dati Climatici");
         dialog.setHeaderText("Inserisci i parametri climatici per un'area");
 
-        ButtonType insertButtonType = new ButtonType("Inserisci", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(insertButtonType, ButtonType.CANCEL);
+        ButtonType ins = new ButtonType("Inserisci", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(ins, ButtonType.CANCEL);
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -435,7 +424,7 @@ public class MainController {
         grid.setPadding(new Insets(20, 150, 10, 10));
 
         ComboBox<CoordinateMonitoraggio> areaComboBox = new ComboBox<>();
-        DatePicker dataPicker = new DatePicker();
+        DatePicker data = new DatePicker();
         Spinner<Integer> ventoSpinner = new Spinner<>(0, 300, 0);
         Spinner<Integer> umiditaSpinner = new Spinner<>(0, 100, 50);
         Spinner<Integer> pressioneSpinner = new Spinner<>(900, 1100, 1013);
@@ -449,7 +438,7 @@ public class MainController {
         grid.add(new Label("Area:"), 0, 0);
         grid.add(areaComboBox, 1, 0);
         grid.add(new Label("Data:"), 0, 1);
-        grid.add(dataPicker, 1, 1);
+        grid.add(data, 1, 1);
         grid.add(new Label("Vento (km/h):"), 0, 2);
         grid.add(ventoSpinner, 1, 2);
         grid.add(new Label("Umidità (%):"), 0, 3);
@@ -469,22 +458,20 @@ public class MainController {
 
         dialog.getDialogPane().setContent(grid);
 
-        // Popola il ComboBox con le aree disponibili
+
         try {
             List<CoordinateMonitoraggio> aree = service.getAreePerCentroMonitoraggio(currentUser.getId());
             areaComboBox.getItems().addAll(aree);
         } catch (RemoteException e) {
-            showAlert(Alert.AlertType.ERROR, "Errore di caricamento",
-                    "Impossibile caricare le aree", "Si è verificato un errore nel caricamento delle aree: " + e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Errore di caricamento", "Impossibile caricare le aree", "Si è verificato un errore nel caricamento delle aree: " + e.getMessage());
         }
 
         dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == insertButtonType) {
-                CoordinateMonitoraggio selectedArea = areaComboBox.getValue();
-                LocalDate selectedDate = dataPicker.getValue();
-                if (selectedArea == null || dataPicker.getValue() == null || selectedDate == null) {
-                    showAlert(Alert.AlertType.ERROR, "Dati mancanti",
-                            "Campi obbligatori", "Seleziona un'area e una data.");
+            if (dialogButton == ins) {
+                CoordinateMonitoraggio selArea = areaComboBox.getValue();
+                LocalDate selData = data.getValue();
+                if (selArea == null || data.getValue() == null || selData == null) {
+                    showAlert(Alert.AlertType.ERROR, "Dati mancanti", "Campi obbligatori", "Seleziona un'area e una data.");
                     return null;
                 }
 
@@ -493,8 +480,7 @@ public class MainController {
                         pressioneSpinner.getValue(), temperaturaSpinner.getValue(),
                         precipitazioniSpinner.getValue(), altitudineSpinner.getValue(),
                         massaGhiacciaiSpinner.getValue())) {
-                    showAlert(Alert.AlertType.ERROR, "Dati non validi",
-                            "I dati inseriti non sono validi", "Controlla i valori e assicurati che siano nel range corretto.");
+                    showAlert(Alert.AlertType.ERROR, "Dati non validi", "I dati inseriti non sono validi", "Controlla i valori e assicurati che siano nel range corretto.");
                     return null;
                 }
 
@@ -503,8 +489,8 @@ public class MainController {
                     boolean success = service.inserisciParametriClimatici(
                             currentUser.getId(),
                             null,
-                            selectedArea.getId(),
-                            java.sql.Date.valueOf(dataPicker.getValue()),
+                            selArea.getId(),
+                            java.sql.Date.valueOf(data.getValue()),
                             ventoSpinner.getValue(),
                             umiditaSpinner.getValue(),
                             pressioneSpinner.getValue(),
@@ -517,19 +503,15 @@ public class MainController {
 
 
                     if (success) {
-                        showAlert(Alert.AlertType.INFORMATION, "Successo",
-                                "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
+                        showAlert(Alert.AlertType.INFORMATION, "Successo", "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
                     } else {
-                        showAlert(Alert.AlertType.ERROR, "Errore",
-                                "Inserimento fallito", "Non è stato possibile inserire i parametri climatici.");
+                        showAlert(Alert.AlertType.ERROR, "Errore", "Inserimento fallito", "Non è stato possibile inserire i parametri climatici.");
                     }
                 } catch (RemoteException e) {
-                    showAlert(Alert.AlertType.ERROR, "Errore di connessione",
-                            "Errore del server", "Si è verificato un errore durante l'inserimento dei dati: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Errore di connessione", "Errore del server", "Si è verificato un errore durante l'inserimento dei dati: " + e.getMessage());
                 } catch (Exception e) {
-                    showAlert(Alert.AlertType.ERROR, "Errore imprevisto",
-                            "Si è verificato un errore inaspettato", "Dettagli: " + e.getMessage());
-                    e.printStackTrace(); // Log dell'eccezione per il debugging
+                    showAlert(Alert.AlertType.ERROR, "Errore imprevisto", "Si è verificato un errore inaspettato", "Dettagli: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
             return null;
@@ -551,7 +533,7 @@ public class MainController {
     }
 
     @FXML
-    private void handleInserisciParametriArea() throws RemoteException {
+    private void handleInserisciParametriArea(){
         if (currentUser == null) {
             showAlert(Alert.AlertType.ERROR, "Errore", "Accesso negato", "Effettua il login come operatore");
             return;
@@ -576,20 +558,17 @@ public class MainController {
             areeInteresse = service.getAreeInteresseOperatore(currentUser.getId());
 
             if (areeInteresse.isEmpty()) {
-                showAlert(Alert.AlertType.WARNING, "Nessuna Area Trovata",
-                        "Non ci sono aree di interesse associate al tuo ID operatore.",
-                        "Crea delle aree all'interno del tuo centro di monitoraggio");
-                return; // Esce se non ci sono aree
+                showAlert(Alert.AlertType.WARNING, "Nessuna Area Trovata", "Non ci sono aree di interesse associate al tuo ID operatore.", "Crea delle aree all'interno del tuo centro di monitoraggio");
+                return;
             }
 
             areaComboBox.getItems().addAll(areeInteresse);
         } catch (RemoteException e) {
-            showAlert(Alert.AlertType.ERROR, "Errore di connessione",
-                    "Impossibile recuperare le aree", e.getMessage());
+            showAlert(Alert.AlertType.ERROR, "Errore di connessione", "Impossibile recuperare le aree", e.getMessage());
             return;
         }
 
-        DatePicker dataPicker = new DatePicker(LocalDate.now()); // Imposta data odierna di default
+        DatePicker dataPicker = new DatePicker(LocalDate.now());
         Spinner<Integer> ventoSpinner = new Spinner<>(0, 300, 0);
         Spinner<Integer> umiditaSpinner = new Spinner<>(0, 100, 50);
         Spinner<Integer> pressioneSpinner = new Spinner<>(900, 1100, 1013);
@@ -637,7 +616,7 @@ public class MainController {
                 }
 
                 try {
-                    // Log dei valori prima dell'inserimento
+
                     System.out.println("Tentativo inserimento dati per area: " + selectedArea.getId());
 
                     boolean success = service.inserisciParametriClimaticiArea(
@@ -655,21 +634,15 @@ public class MainController {
                     );
 
                     if (success) {
-                        showAlert(Alert.AlertType.INFORMATION, "Successo",
-                                "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
-                        // Aggiorna la vista se necessario
-                        // updateView();
+                        showAlert(Alert.AlertType.INFORMATION, "Successo", "Dati inseriti", "I parametri climatici sono stati inseriti con successo.");
                     } else {
-                        showAlert(Alert.AlertType.ERROR, "Errore",
-                                "Inserimento fallito", "Non è stato possibile inserire i parametri climatici.");
+                        showAlert(Alert.AlertType.ERROR, "Errore", "Inserimento fallito", "Non è stato possibile inserire i parametri climatici.");
                     }
                 } catch (RemoteException e) {
-                    showAlert(Alert.AlertType.ERROR, "Errore di connessione",
-                            "Errore del server", "Si è verificato un errore durante l'inserimento dei dati: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Errore di connessione", "Errore del server", "Si è verificato un errore durante l'inserimento dei dati: " + e.getMessage());
                     e.printStackTrace();
                 } catch (Exception e) {
-                    showAlert(Alert.AlertType.ERROR, "Errore imprevisto",
-                            "Si è verificato un errore inaspettato", "Dettagli: " + e.getMessage());
+                    showAlert(Alert.AlertType.ERROR, "Errore imprevisto", "Si è verificato un errore inaspettato", "Dettagli: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
@@ -696,20 +669,17 @@ public class MainController {
 
     @FXML
     private void handleVisualizzaArea() {
-        String areaName = monitoringAreaNameField.getText().trim();
-        String areaStatus = monitoringAreaStatusField.getText().trim();
+        String nomeArea = monitoringAreaNameField.getText().trim();
+        String nomeStato = monitoringAreaStatusField.getText().trim();
 
-        if (areaName.isEmpty() || areaStatus.isEmpty()) {
-            showAlert(Alert.AlertType.ERROR,
-                    "Errore di ricerca",
-                    "Campi vuoti",
-                    "Inserisci sia il nome che lo stato dell'area di interesse.");
+        if (nomeArea.isEmpty() || nomeStato.isEmpty()) {
+            showAlert(Alert.AlertType.ERROR, "Errore di ricerca", "Campi vuoti", "Inserisci sia il nome che lo stato dell'area di interesse.");
             return;
         }
 
         try {
-            // Chiama il metodo del servizio per ottenere i dati dell'area
-            String risultato = service.visualizzaAreaCentroMonitoraggio(areaName, areaStatus);
+
+            String risultato = service.visualizzaAreaCentroMonitoraggio(nomeArea, nomeStato);
 
             if (risultato.equals("Area di interesse non trovata.")) {
                 monitoringAreaResultArea.setText("Nessuna area di interesse trovata con i criteri specificati.");

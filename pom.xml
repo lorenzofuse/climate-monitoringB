@@ -20,14 +20,73 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Manage dependencies here -->
+            <!-- Dipendenze comuni -->
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>42.7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-controls</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-fxml</artifactId>
+                <version>${javafx.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Manage plugins here -->
+                <!-- Maven Compiler Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.1</version>
+                    <configuration>
+                        <source>${maven.compiler.source}</source>
+                        <target>${maven.compiler.target}</target>
+                    </configuration>
+                </plugin>
+                <!-- Maven Dependency Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.5.0</version>
+                    <executions>
+                        <execution>
+                            <id>copy-client-dependencies</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>copy</goal>
+                            </goals>
+                            <configuration>
+                                <artifactItems>
+                                    <artifactItem>
+                                        <groupId>com.climatemonitoring</groupId>
+                                        <artifactId>climate-monitoring-client</artifactId>
+                                        <version>${project.version}</version>
+                                        <type>jar</type>
+                                        <classifier>jar-with-dependencies</classifier>
+                                        <outputDirectory>${project.basedir}/bin</outputDirectory>
+                                    </artifactItem>
+                                    <artifactItem>
+                                        <groupId>com.climatemonitoring</groupId>
+                                        <artifactId>climate-monitoring-server</artifactId>
+                                        <version>${project.version}</version>
+                                        <type>jar</type>
+                                        <classifier>jar-with-dependencies</classifier>
+                                        <outputDirectory>${project.basedir}/bin</outputDirectory>
+                                    </artifactItem>
+                                </artifactItems>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
