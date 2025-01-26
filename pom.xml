@@ -6,9 +6,9 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>climate-monitoring-common</module>
-        <module>climate-monitoring-server</module>
-        <module>climate-monitoring-client</module>
+        <module>climate.monitoring.common</module>
+        <module>climate.monitoring.server</module>
+        <module>climate.monitoring.client</module>
     </modules>
 
     <properties>
@@ -87,6 +87,24 @@
                         </execution>
                     </executions>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.3.2</version>
+                    <configuration>
+                        <aggregate>true</aggregate>
+                        <source>17</source>
+                        <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
+                        <includePackageNames>
+                            com.climatemonitoring.server.*,
+                            com.climatemonitoring.client.*,
+                            com.climatemonitoring.common.*
+                        </includePackageNames>
+                    </configuration>
+
+                </plugin>
+
             </plugins>
         </pluginManagement>
     </build>
