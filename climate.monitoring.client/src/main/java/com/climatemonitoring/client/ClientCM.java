@@ -24,7 +24,9 @@ import java.rmi.registry.Registry;
  * - Caricare e gestire diverse viste (login, principale)
  * - Gestire l'inizializzazione dell'applicazione e gli scenari di errore
  *
- * @author
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 
 public class ClientCM extends Application {

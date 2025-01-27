@@ -1,0 +1,11 @@
+module:climate.monitoring.client
+com.climatemonitoring.client
+com.climatemonitoring.client.controller
+module:climate.monitoring.common
+com.climatemonitoring.common.model
+com.climatemonitoring.common.service
+module:climate.monitoring.server
+com.climatemonitoring.server
+com.climatemonitoring.server.controller
+com.climatemonitoring.server.server
+com.climatemonitoring.server.util

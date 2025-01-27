@@ -10,6 +10,11 @@ import java.io.Serializable;
  * inclusi i suoi identificativi e le informazioni sulla posizione.
  *
  * Implementa l'interfaccia Serializable per consentire la trasmissione dell'oggetto attraverso le reti.
+ *
+ *
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class CentroMonitoraggio implements Serializable {
     /** Identificatore univoco per la serializzazione. */

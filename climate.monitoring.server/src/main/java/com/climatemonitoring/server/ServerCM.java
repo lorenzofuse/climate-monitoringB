@@ -36,9 +36,9 @@ import java.rmi.server.UnicastRemoteObject;
  * 3. Avvio del server RMI tramite {@link #startRMIServer(DatabaseManager)}
  * 4. Gestione della chiusura con pulizia delle risorse
  *
- * @author
- * @author
- * @author
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class ServerCM extends Application {
     /**
@@ -65,8 +65,14 @@ public class ServerCM extends Application {
      */
     private static boolean rmiStarted = false;
 
-
-    private ClimateMonitoringServiceImpl serviceImpl;
+    /**
+     * Implementazione del servizio di monitoraggio climatico distribuito.
+     * Gestisce tutte le operazioni remote disponibili ai client attraverso RMI,
+     * facendo da intermediario tra le richieste dei client e il database.
+     * Viene inizializzato all'avvio del server e rimane attivo per tutta la
+     * sua durata di esecuzione.
+     */
+     private ClimateMonitoringServiceImpl serviceImpl;
 
     /**
      * Metodo principale di avvio dell'applicazione JavaFX.
@@ -239,7 +245,6 @@ public class ServerCM extends Application {
     /**
      * Visualizza un messaggio informativo di successo mediante un dialogo JavaFX.
      *
-     * Complementare al metodo {@link #errore()}, questo metodo:
      * - Fornisce feedback positivi all'utente
      * - Usa un Alert di tipo INFORMATION per messaggi non critici
      * - Mantiene un'interfaccia utente coerente e professionale

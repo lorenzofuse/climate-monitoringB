@@ -26,7 +26,9 @@ import java.sql.SQLException;
  * 3. Utilizzare {@link #getConnection()} per operazioni di database
  * 4. Chiudere la connessione con {@link #closeConnection()}
  *
- * @author [Nome Sviluppatore]
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class DatabaseManager {
 

@@ -13,9 +13,9 @@ import java.util.Date;
  * I parametri includono diverse metriche fondamentali per comprendere le condizioni
  * climatiche e ambientali di un determinato sito di rilevazione.
  *
- * @author [Nome dell'autore]
- * @version 1.0
- * @since [Data di implementazione]
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class ParametriClimatici implements Serializable {
     /**

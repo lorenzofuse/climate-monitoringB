@@ -18,7 +18,9 @@ import java.sql.SQLException;
  * Questa classe gestisce l'autenticazione degli utenti, la registrazione di nuovi operatori
  * e le interazioni con l'interfaccia utente per il processo di login.
  *
- * @author
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class LoginController {
 

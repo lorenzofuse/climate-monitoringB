@@ -20,7 +20,9 @@ import java.util.List;
  * Questa classe estende UnicastRemoteObject per supportare chiamate remote
  * e implementa l'interfaccia ClimateMonitoringService.
  *
- * @author
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements ClimateMonitoringService {
 
@@ -370,10 +372,10 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                 appendMedie(result, rs);
 
                 // Aggiungi i dettagli
-                try (PreparedStatement pstmtDettaglio = conn.prepareStatement(sqlDettaglio)) {
+                try {PreparedStatement pstmtDettaglio = conn.prepareStatement(sqlDettaglio);
                     pstmtDettaglio.setInt(1, id);
                     appendDetails(result, pstmtDettaglio.executeQuery(), idColumnType.equals("centro_monitoraggio_id"));
-                }
+                }catch (SQLException e1){ throw new RuntimeException(e1);}
                 return true;
             }
 
@@ -489,30 +491,34 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                 "AND note IS NOT NULL AND note != '' " +
                 "ORDER BY data_rilevazione DESC LIMIT 5";
 
-        try (Connection conn = dbManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try {
+            Connection conn = dbManager.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
 
             pstmt.setInt(1, id);
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                result.append("\n=== Commenti recenti degli operatori ===\n");
-                boolean hasComments = false;
 
-                while (rs.next()) {
-                    // Aggiungo anche la data del commento per maggiore chiarezza
-                    result.append("- [")
-                            .append(new SimpleDateFormat("dd/MM/yyyy").format(rs.getTimestamp("data_rilevazione")))
-                            .append("] ")
-                            .append(rs.getString("note"))
-                            .append("\n");
-                    hasComments = true;
-                }
+            ResultSet rs = pstmt.executeQuery();
+            result.append("\n=== Commenti recenti degli operatori ===\n");
+            boolean hasComments = false;
 
-                if (!hasComments) {
-                    result.append("Nessun commento disponibile.\n");
-                }
-                result.append("\n");
+            while (rs.next()) {
+
+                result.append("- [")
+                        .append(new SimpleDateFormat("dd/MM/yyyy").format(rs.getTimestamp("data_rilevazione")))
+                        .append("] ")
+                        .append(rs.getString("note"))
+                        .append("\n");
+                hasComments = true;
             }
+
+            if (!hasComments) {
+                result.append("Nessun commento disponibile.\n");
+            }
+            result.append("\n");
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -558,34 +564,35 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             pstmt.setString(1, nome);
             pstmt.setString(2, stato);
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    result.append("=== Informazioni Area di Interesse ===\n\n");
-                    result.append("  ID: ").append(rs.getInt("id")).append("\n");
-                    result.append("  Nome: ").append(rs.getString("nome")).append("\n");
-                    result.append("  Centro Monitoraggio: ").append(rs.getString("centro_nome")).append("\n");
-                    result.append("  Centro Monitoraggio ID: ").append(rs.getInt("centro_monitoraggio_id")).append("\n");
-                    result.append("  Stato: ").append(rs.getString("stato")).append("\n");
-                    result.append("  Latitudine: ").append(rs.getDouble("latitudine")).append("\n");
-                    result.append("  Longitudine: ").append(rs.getDouble("longitudine")).append("\n");
+
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                result.append("=== Informazioni Area di Interesse ===\n\n");
+                result.append("  ID: ").append(rs.getInt("id")).append("\n");
+                result.append("  Nome: ").append(rs.getString("nome")).append("\n");
+                result.append("  Centro Monitoraggio: ").append(rs.getString("centro_nome")).append("\n");
+                result.append("  Centro Monitoraggio ID: ").append(rs.getInt("centro_monitoraggio_id")).append("\n");
+                result.append("  Stato: ").append(rs.getString("stato")).append("\n");
+                result.append("  Latitudine: ").append(rs.getDouble("latitudine")).append("\n");
+                result.append("  Longitudine: ").append(rs.getDouble("longitudine")).append("\n");
 
 
-                    int areaInteresseId = rs.getInt("id");
-                    boolean hasParametri = appendParametriClimatici(result, areaInteresseId, "area_interesse_id");
+                int areaInteresseId = rs.getInt("id");
+                boolean hasParametri = appendParametriClimatici(result, areaInteresseId, "area_interesse_id");
 
-                    if (!hasParametri) {
-                        result.append("\nNessun dato climatico disponibile per questa area.\n");
-                    }
-
-
-                    appendCommentiOperatori(result, areaInteresseId, "area_interesse_id");
-                } else {
-                    result.append("Area di interesse non trovata per: ")
-                            .append(nome)
-                            .append(", ")
-                            .append(stato);
+                if (!hasParametri) {
+                    result.append("\nNessun dato climatico disponibile per questa area.\n");
                 }
+
+
+                appendCommentiOperatori(result, areaInteresseId, "area_interesse_id");
+            } else {
+                result.append("Area di interesse non trovata per: ")
+                        .append(nome)
+                        .append(", ")
+                        .append(stato);
             }
+
         } catch (SQLException e) {
             throw new RemoteException("Errore durante la visualizzazione dell'area di interesse: " + e.getMessage(), e);
         }
@@ -660,20 +667,20 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
             pstmt.setString(1, userId);
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return new OperatoriRegistrati(
-                            rs.getInt("id"),
-                            rs.getString("nome"),
-                            rs.getString("cognome"),
-                            rs.getString("codice_fiscale"),
-                            rs.getString("email"),
-                            rs.getString("userid"),
-                            rs.getString("password")
-                    );
-                }
-                return null;
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return new OperatoriRegistrati(
+                        rs.getInt("id"),
+                        rs.getString("nome"),
+                        rs.getString("cognome"),
+                        rs.getString("codice_fiscale"),
+                        rs.getString("email"),
+                        rs.getString("userid"),
+                        rs.getString("password")
+                );
             }
+            return null;
+
         } catch (SQLException e) {
             throw new RemoteException("Errore durante il recupero dell'utente", e);
         }
@@ -807,10 +814,10 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
 
             if (rs.next()) {
                 int centroId = rs.getInt("id");
-                System.out.println("Trovato centro di monitoraggio con ID " + centroId + " per operatore ID " + operatoreId);
+               // System.out.println("Trovato centro di monitoraggio con ID " + centroId + " per operatore ID " + operatoreId);
                 return centroId;
             } else {
-                System.out.println("Nessun centro di monitoraggio trovato per l'operatore con ID " + operatoreId);
+               // System.out.println("Nessun centro di monitoraggio trovato per l'operatore con ID " + operatoreId);
                 return -1;
             }
         } catch (SQLException e) {
@@ -984,35 +991,13 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
     public List<CoordinateMonitoraggio> getAreePerCentroMonitoraggio(int centroMonitoraggioId) throws RemoteException {
         List<CoordinateMonitoraggio> aree = new ArrayList<>();
 
-//        String query = """
-//        SELECT a.*
-//        FROM areeinteresse a
-//        WHERE a.centro_monitoraggio_id = ?
-//    """;
+
         String queryCoordinate = "SELECT * FROM coordinatemonitoraggio";
 
         try {
             Connection conn = dbManager.getConnection();
-//            PreparedStatement pstmtAree = conn.prepareStatement(query);
-            PreparedStatement pstmtCoord = conn.prepareStatement(queryCoordinate);
+             PreparedStatement pstmtCoord = conn.prepareStatement(queryCoordinate);
 
-//            pstmtAree.setInt(1, centroMonitoraggioId);
-//            try {
-//                ResultSet rsAree = pstmtAree.executeQuery();
-//                while (rsAree.next()) {
-//                    CoordinateMonitoraggio area = new CoordinateMonitoraggio(
-//                            rsAree.getInt("id"),
-//                            rsAree.getString("nome"),
-//                            rsAree.getString("stato"),
-//                            "", // paese non presente nelle aree di interesse
-//                            rsAree.getDouble("latitudine"),
-//                            rsAree.getDouble("longitudine")
-//                    );
-//                    aree.add(area);
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
 
             try {
                 ResultSet rsCoord = pstmtCoord.executeQuery();
@@ -1086,7 +1071,7 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
                 System.out.println("Nessuna area di interesse trovata per l'operatore ID: " + operatoreId);
             } else {
                 for (CoordinateMonitoraggio area : areeInteresse) {
-                    System.out.println("Area trovata: " + area.getNomeCitta());
+                 //   System.out.println("Area trovata: " + area.getNomeCitta());
                 }
             }
 
@@ -1137,9 +1122,6 @@ public class ClimateMonitoringServiceImpl extends UnicastRemoteObject implements
             Connection conn = dbManager.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
-
-//            System.out.println("Inserimento parametri per area " + areaInteresseId
-//                    + " del centro " + centroMonitoraggioId);
 
             pstmt.setInt(1, centroMonitoraggioId);
             if (areaInteresseId != null) {

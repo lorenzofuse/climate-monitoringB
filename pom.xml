@@ -1,7 +1,7 @@
 <project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.climatemonitoring</groupId>
-    <artifactId>climate-monitoring</artifactId>
+    <artifactId>climate.monitoring</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
@@ -93,14 +93,10 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.3.2</version>
                     <configuration>
-                        <aggregate>true</aggregate>
+
                         <source>17</source>
                         <outputDirectory>${project.build.directory}/javadoc</outputDirectory>
-                        <includePackageNames>
-                            com.climatemonitoring.server.*,
-                            com.climatemonitoring.client.*,
-                            com.climatemonitoring.common.*
-                        </includePackageNames>
+
                     </configuration>
 
                 </plugin>

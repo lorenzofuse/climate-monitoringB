@@ -19,7 +19,9 @@ import java.util.List;
  * Questa interfaccia estende Remote per consentire chiamate
  * di metodi remoti attraverso RMI (Remote Method Invocation).
  *
- * @author
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public interface ClimateMonitoringService extends Remote {
     /**

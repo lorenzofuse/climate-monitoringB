@@ -27,9 +27,9 @@ import javafx.scene.control.TextField
  * 3. In caso di successo, viene avviato il server RMI
  * 4. L'interfaccia viene aggiornata per riflettere lo stato di connessione
  *
- * @author [Nome dell'autore]
- * @version 1.0
- * @since [Data di implementazione]
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class ServerLogin {
 

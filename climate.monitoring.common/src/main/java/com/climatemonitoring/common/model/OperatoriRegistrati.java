@@ -9,9 +9,9 @@ import java.io.Serializable;
  * contenendo i suoi dati personali e di accesso. Implementa l'interfaccia Serializable
  * per consentire la serializzazione e deserializzazione degli oggetti.
  *
- * @author [Nome dell'autore]
- * @version 1.0
- * @since [Data di implementazione]
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class OperatoriRegistrati implements Serializable {
 

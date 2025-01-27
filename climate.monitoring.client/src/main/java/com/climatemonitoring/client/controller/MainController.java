@@ -26,11 +26,12 @@ import java.util.List;
  * - Gestire la creazione di centri di monitoraggio e aree di interesse
  * - Implementare funzionalità di autenticazione e logout
  *
- * @author
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class MainController {
 
-    // Campi FXML per l'interfaccia utente
     /**
      * Campo di testo per la ricerca di aree geografiche per nome.
      */
@@ -192,7 +193,7 @@ public class MainController {
      */
     @FXML private Tab visualizzaAreaCentroTab;
 
-    // Campi per la gestione dell'utente e dei servizi
+
     /**
      * Riferimento all'utente operatore attualmente connesso.
      * Utilizzato per verificare i permessi e associare le azioni dell'utente.
@@ -989,8 +990,6 @@ public class MainController {
                 }
 
                 try {
-
-                    System.out.println("Tentativo inserimento dati per area: " + selectedArea.getId());
 
                     boolean success = service.inserisciParametriClimaticiArea(
                             selectedArea.getCentroMonitoraggioId(),

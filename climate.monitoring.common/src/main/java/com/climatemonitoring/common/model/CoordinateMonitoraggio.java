@@ -13,6 +13,10 @@ import java.io.Serializable;
  *
  * Gli oggetti di questa classe possono rappresentare sia aree di interesse specifiche
  * per il monitoraggio climatico che posizioni geografiche generiche.
+ *
+ * @author Fusè Lorenzo 753168
+ * @author Ciminella Alessandro 753369
+ * @author Dragan Cosmin 754427
  */
 public class CoordinateMonitoraggio implements Serializable {
     /** Identificatore univoco per la serializzazione delle istanze di questa classe. */
